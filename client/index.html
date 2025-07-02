@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+    <title>منصة إدارة البناء - نظام إدارة شركات المقاولات</title>
+    <meta name="description" content="منصة شاملة لإدارة شركات المقاولات اليمنية مع نظام مالي متوافق مع معايير IFRS وإدارة المشاريع والموظفين" />
+    <meta name="keywords" content="إدارة مقاولات، نظام مالي، IFRS، مشاريع، موظفين، يمن" />
+    <meta name="author" content="منصة إدارة البناء" />
+    
+    <!-- Open Graph tags -->
+    <meta property="og:title" content="منصة إدارة البناء - نظام إدارة شركات المقاولات" />
+    <meta property="og:description" content="منصة شاملة لإدارة شركات المقاولات اليمنية مع نظام مالي متوافق مع معايير IFRS" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ar_YE" />
+    
+    <!-- Preload Arabic fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- RTL and Arabic specific styles -->
+    <style>
+      * {
+        font-family: 'Noto Sans Arabic', 'IBM Plex Sans Arabic', Arial, sans-serif;
+      }
+      
+      body {
+        direction: rtl;
+        text-align: right;
+      }
+      
+      /* Loading screen with Arabic text */
+      .loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, hsl(248, 10%, 98%) 0%, hsl(210, 10%, 96%) 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+      }
+      
+      .loading-logo {
+        width: 80px;
+        height: 80px;
+        background: hsl(157, 50%, 20%);
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+        animation: pulse 2s infinite;
+      }
+      
+      .loading-text {
+        color: hsl(157, 50%, 20%);
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      
+      .loading-subtitle {
+        color: hsl(210, 8%, 40%);
+        font-size: 14px;
+      }
+      
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+      }
+      
+      /* Hide loading screen when app loads */
+      .app-loaded .loading-screen {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+      <div class="loading-logo">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+          <path d="M3 21h18"/>
+          <path d="M5 21V7l8-4v18"/>
+          <path d="M19 21V11l-6-4"/>
+        </svg>
+      </div>
+      <div class="loading-text">منصة إدارة البناء</div>
+      <div class="loading-subtitle">جاري تحميل النظام...</div>
+    </div>
+    
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Hide loading screen when React app loads -->
+    <script>
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          document.body.classList.add('app-loaded');
+        }, 500);
+      });
+    </script>
+    
+    <!-- This is a replit script which adds a banner on the top of the page when opened in development mode outside the replit environment -->
+    <script type="text/javascript" src="https://replit.com/public/js/replit-dev-banner.js"></script>
+  </body>
+</html>
