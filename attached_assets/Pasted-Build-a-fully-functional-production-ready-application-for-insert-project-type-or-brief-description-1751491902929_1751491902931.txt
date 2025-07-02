@@ -1,0 +1,43 @@
+Build a fully functional, production-ready application for [insert project type or brief description, e.g., 'a task management app'] from scratch, strictly adhering to the following sequence and requirements. Do not use any pre-existing templates, boilerplates, starter kits, or third-party UI libraries (e.g., Bootstrap, Material-UI) unless explicitly specified. All code, designs, and logic must be custom-built from the ground up.
+
+**Step 1: UI/UX Design**
+- Design a modern, intuitive user interface and experience tailored to the project’s purpose ([insert project type or description]).
+- Create a responsive layout with a clear structure (e.g., a dashboard with navigation, main content area, and header/footer) using custom HTML/CSS or a minimal framework setup (e.g., vanilla React, Vue, or [your preferred framework], initialized without pre-configured templates).
+- Prioritize mobile-first design, ensuring seamless usability across all screen sizes (mobile, tablet, desktop).
+- Deliver wireframes, mockups, or a visual prototype to establish the design foundation before any implementation begins.
+
+**Step 2: Component-Based Architecture**
+- Develop the application using a modular, component-based approach, creating reusable components from scratch (e.g., navigation bar, input forms, content displays).
+- Use a framework like [React, Vue, or your preference], starting with a blank project (no create-react-app, Vue CLI, or similar tools).
+- Write custom logic for component interactions, ensuring modularity, reusability, and maintainability.
+- Implement basic error handling (e.g., invalid user inputs) and state management tailored to the project’s needs.
+
+**Step 3: Simulated Workflow**
+- Implement a core workflow that reflects the project’s primary functionality (e.g., for a task manager: create, edit, and track tasks; for an e-commerce app: browse products, add to cart, checkout).
+- Build dynamic features such as user inputs, real-time updates (e.g., via WebSocket or local state), and feedback mechanisms (e.g., success/error messages).
+- Include data persistence (e.g., browser local storage or a custom backend with a lightweight database like SQLite or MongoDB) to simulate real-world usage.
+- Ensure the workflow is fully functional and user-ready.
+
+**Production-Readiness Requirements**
+- Optimize the application for scalability and performance (e.g., efficient rendering, lazy loading, minimal resource usage).
+- Implement comprehensive error handling (e.g., form validation, API failure recovery) and user feedback (e.g., toast notifications).
+- Test for functionality, responsiveness, and cross-browser compatibility (e.g., Chrome, Firefox, Safari, Edge).
+- Ensure the app is deployable, providing instructions for hosting (e.g., Vercel, AWS, or Netlify for web; App Store/Google Play for mobile if applicable).
+- Include basic documentation for setup, usage, and maintenance.
+- If a backend is needed, build a minimal, custom server (e.g., Node.js with Express) from scratch, avoiding pre-built CMS or boilerplate solutions.
+
+**Critical Instructions**
+- Build everything from scratch, including all code, design, and functionality. Do not use templates, boilerplates, or pre-built libraries except for [specify allowed tools, e.g., React, Express] in their most minimal form.
+- Strictly follow the sequence: complete the UI/UX design first, then build the component-based architecture, and finally implement the simulated workflow. Do not proceed to the next step until the previous one is fully complete.
+- Ensure the final application is fully functional, deployable, and ready for real-world use, with no placeholder or incomplete features.
+- Adapt all steps to the project type provided ([insert project type or description]).
+
+**Deliverables**
+- Complete source code for the frontend and backend (if applicable), written from scratch.
+- Wireframes, mockups, or UI/UX prototype.
+- Documentation for setup, testing, and deployment.
+- A brief explanation of how each step was implemented from scratch, confirming adherence to the sequence and no-template rule.
+
+**Optional Customization**
+- If a specific design aesthetic is desired (e.g., glassy morphism, minimalism), incorporate it into the UI/UX step.
+- If the project requires a mobile app (hybrid or native), include platform-specific requirements (e.g., React Native for hybrid, Swift/Kotlin for native) in the relevant steps.
