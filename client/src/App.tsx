@@ -13,6 +13,7 @@ import Warehouse from "@/pages/warehouse";
 import Documents from "@/pages/documents";
 import Equipment from "@/pages/equipment";
 import Reports from "@/pages/reports";
+import FormsDemo from "@/pages/forms-demo";
 import Layout from "@/components/layout/layout";
 
 function Router() {
@@ -27,6 +28,7 @@ function Router() {
       <Route path="/documents" component={Documents} />
       <Route path="/equipment" component={Equipment} />
       <Route path="/reports" component={Reports} />
+      <Route path="/forms-demo" component={FormsDemo} />
       <Route component={NotFound} />
     </Switch>
   );
