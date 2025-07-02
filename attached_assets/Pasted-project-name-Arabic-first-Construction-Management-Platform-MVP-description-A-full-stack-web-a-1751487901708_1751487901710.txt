@@ -1,0 +1,92 @@
+project:
+  name: Arabic-first Construction Management Platform MVP
+  description: A full-stack web application for enterprise-level Yemeni contractors (200-500+ employees), featuring bilingual (Arabic/English) interface, glassmorphic UI, RTL support, and functionality for multi-branch management, IFRS-compliant financials, project management with Gantt charts, and real-time collaboration.
+  platform: Replit
+  development_tool: Replit Agent
+  current_status:
+    date: 2025-07-02
+    progress:
+      - Project structure established with frontend (React 18, TypeScript, Vite, TailwindCSS, Radix UI, shadcn/ui, Wouter, React Hook Form, Zod, TanStack Query) and backend (Node.js, TypeScript, Express.js, PostgreSQL with Drizzle ORM, Neon serverless database, Multer, ESBuild).
+      - Fixed issues: CSS warning (moved @import before @tailwind in index.css), console DOM validation (fixed nested anchor tags in sidebar navigation).
+      - Documentation system: Persistent tracking in replit.md, automated progress recording.
+      - Next steps: Test functionality, await user feedback.
+  user_preferences:
+    communication_style: Simple, everyday language
+    documentation: Automatically save all discussions, decisions, and progress to replit.md
+    development_approach: Fix issues as identified, maintain comprehensive documentation
+
+requirements:
+  general:
+    from_scratch: true
+    no_templates: true
+    allowed_dependencies:
+      - React 18 (frontend, minimal setup)
+      - Node.js/Express (backend, minimal setup)
+      - PostgreSQL with Drizzle ORM (database)
+      - TailwindCSS (custom styling)
+      - Radix UI (accessible primitives)
+      - shadcn/ui (component utilities)
+      - Wouter (routing)
+      - React Hook Form (forms)
+      - Zod (validation)
+      - TanStack Query (server-state)
+      - Multer (file uploads)
+      - ESBuild (bundling)
+      - Lucide React (icons)
+      - Chart.js (analytics, optional)
+      - TensorFlow.js (AI, optional)
+    sequence:
+      - UI/UX Design
+      - Component-Based Architecture
+      - Simulated Workflow
+    production_readiness:
+      scalability: Optimize for high user loads (e.g., lazy loading, caching, database indexing)
+      error_handling: Comprehensive (e.g., form validation, API failure recovery, currency errors)
+      testing: Functionality, responsiveness, RTL rendering, cross-browser (Chrome, Firefox, Safari, Edge)
+      deployment: Replit hosting with Neon database
+      integrations:
+        open_api: Public API for third-party integrations (e.g., BIM, CRM, QuickBooks)
+      documentation:
+        file: replit.md
+        contents:
+          - Setup instructions
+          - Usage guide
+          - Maintenance procedures
+          - IFRS compliance details
+          - Neon database configuration
+          - User training materials (tutorials, FAQs in Arabic/English)
+      compliance:
+        financial: IFRS standards for costing and billing
+        currency: Yemeni Rial with dynamic exchange rates
+        accessibility: WCAG 2.1 compliance
+
+steps:
+  - name: UI/UX Design
+    description: Develop a modern, intuitive interface inspired by SAP Business One and Oracle Construction Intelligence Cloud, with glassmorphic aesthetic and full Arabic RTL support.
+    tasks:
+      - layout:
+          type: Responsive, mobile-first dashboard
+          components:
+            - navigation_bar:
+                style: RTL Arabic
+                fonts:
+                  - Noto Sans Arabic
+                  - IBM Plex Sans Arabic
+            - main_content_area: For project management, financials, analytics
+            - sidebar: Access to organizational structure, warehouse/equipment, collaboration
+            - header_footer: Key controls and user information
+            - help_section: Tutorials and FAQs in Arabic/English
+      - style_guide:
+          colors:
+            primary: "#1B4332" # Deep forest
+            secondary: "#D4AF37" # Arabic gold
+            accent: "#40916C" # Sage green
+            background: "#F8F9FA" # Pearl white
+            glass: "#FFFFFF20" # Translucent white
+            text: "#2D3748" # Charcoal
+          design:
+            layout: RTL Arabic
+            cards: Glassmorphic with 24px spacing
+            grid: Advanced grid systems
+            accessibility: High-contrast, WCAG 2.1 compliant
+            animations: Smooth (e.g., fade-ins, hoverս
