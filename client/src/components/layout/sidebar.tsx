@@ -48,13 +48,13 @@ export default function Sidebar() {
             
             return (
               <Link key={item.path} href={item.path}>
-                <a className={cn(
-                  "flex items-center space-x-reverse space-x-3 p-3 rounded-lg hover-glass transition-all duration-200",
+                <div className={cn(
+                  "flex items-center space-x-reverse space-x-3 p-3 rounded-lg hover-glass transition-all duration-200 cursor-pointer",
                   isActive && "bg-white bg-opacity-20"
                 )}>
                   <Icon className="h-5 w-5 text-primary" />
                   <span className="text-charcoal-text font-medium">{item.label}</span>
-                </a>
+                </div>
               </Link>
             );
           })}
