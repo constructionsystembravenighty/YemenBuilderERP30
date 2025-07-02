@@ -1,6 +1,7 @@
 import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { aiHelper } from "./ai-helper";
 import { 
   insertCompanySchema, insertUserSchema, insertProjectSchema, 
   insertTransactionSchema, insertEquipmentSchema, insertWarehouseSchema, insertDocumentSchema 
@@ -324,6 +325,69 @@ export async function registerRoutes(app: Express): Promise<Server> {
       USD_YER: 0.00399,
       lastUpdated: new Date().toISOString(),
     });
+  });
+
+  // AI-powered endpoints
+  app.post("/api/ai/cost-estimation", async (req, res) => {
+    try {
+      const { description, category, location, budget } = req.body;
+      
+      if (!description || !category || !location || !budget) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      const estimate = await aiHelper.analyzeCostEstimation(
+        description,
+        category,
+        location,
+        parseFloat(budget)
+      );
+      
+      res.json(estimate);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate cost estimate" });
+    }
+  });
+
+  app.post("/api/ai/project-insights", async (req, res) => {
+    try {
+      const { projectId } = req.body;
+      
+      if (!projectId) {
+        return res.status(400).json({ message: "Project ID is required" });
+      }
+
+      const project = await storage.getProject(projectId);
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      const transactions = await storage.getTransactionsByProject(projectId);
+      const equipment = await storage.getEquipmentByCompany(project.companyId);
+
+      const insights = await aiHelper.generateProjectInsights(project, transactions, equipment);
+      
+      res.json(insights);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate project insights" });
+    }
+  });
+
+  app.get("/api/ai/financial-trends", async (req, res) => {
+    try {
+      const companyId = parseInt(req.query.companyId as string);
+      
+      if (!companyId) {
+        return res.status(400).json({ message: "Company ID is required" });
+      }
+
+      const transactions = await storage.getTransactionsByCompany(companyId);
+      const analysis = await aiHelper.analyzeFinancialTrends(transactions);
+      
+      res.json(analysis);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to analyze financial trends" });
+    }
   });
 
   const httpServer = createServer(app);
