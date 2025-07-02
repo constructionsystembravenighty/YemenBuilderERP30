@@ -11,6 +11,8 @@ import Financial from "@/pages/financial";
 import Employees from "@/pages/employees";
 import Warehouse from "@/pages/warehouse";
 import Documents from "@/pages/documents";
+import Equipment from "@/pages/equipment";
+import Reports from "@/pages/reports";
 import Layout from "@/components/layout/layout";
 
 function Router() {
@@ -23,6 +25,8 @@ function Router() {
       <Route path="/employees" component={Employees} />
       <Route path="/warehouse" component={Warehouse} />
       <Route path="/documents" component={Documents} />
+      <Route path="/equipment" component={Equipment} />
+      <Route path="/reports" component={Reports} />
       <Route component={NotFound} />
     </Switch>
   );
