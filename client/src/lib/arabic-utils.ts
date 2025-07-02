@@ -117,6 +117,27 @@ export function sortArabicStrings(arr: string[], ascending = true): string[] {
   });
 }
 
+// Get Arabic initials from name
+export function getArabicInitials(name: string): string {
+  if (!name) return '';
+  
+  const words = name.trim().split(/\s+/);
+  
+  // For Arabic names, take first letter of each word
+  if (containsArabic(name)) {
+    return words
+      .map(word => word.charAt(0))
+      .join('')
+      .substring(0, 2); // Limit to 2 characters for avatar display
+  }
+  
+  // For English names, use standard initials
+  return words
+    .map(word => word.charAt(0).toUpperCase())
+    .join('')
+    .substring(0, 2);
+}
+
 export default {
   formatArabicDate,
   toArabicNumerals,
@@ -126,5 +147,6 @@ export default {
   getTextDirection,
   arabicPlural,
   formatArabicTime,
-  sortArabicStrings
+  sortArabicStrings,
+  getArabicInitials
 };

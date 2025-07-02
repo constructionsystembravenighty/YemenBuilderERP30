@@ -177,8 +177,30 @@ export function formatBudgetVariance(actual: number, budget: number): {
   };
 }
 
+// Format financial amount with specific business logic
+export function formatFinancialAmount(
+  amount: number,
+  type: 'income' | 'expense' | 'transfer' = 'income',
+  options: CurrencyFormatOptions = {}
+): string {
+  const formattedAmount = formatCurrency(amount, options);
+  
+  // Add directional indicators for different transaction types
+  switch (type) {
+    case 'income':
+      return `+ ${formattedAmount}`;
+    case 'expense':
+      return `- ${formattedAmount}`;
+    case 'transfer':
+      return `⇄ ${formattedAmount}`;
+    default:
+      return formattedAmount;
+  }
+}
+
 export default {
   formatCurrency,
+  formatFinancialAmount,
   formatCurrencyWithConversion,
   parseCurrency,
   convertYERToUSD,
