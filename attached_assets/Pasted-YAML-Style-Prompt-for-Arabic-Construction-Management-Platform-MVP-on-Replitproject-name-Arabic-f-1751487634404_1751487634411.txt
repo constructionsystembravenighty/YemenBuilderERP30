@@ -1,0 +1,273 @@
+YAML-Style Prompt for Arabic Construction Management Platform MVP on Replitproject:
+  name: Arabic-first Construction Management Platform MVP
+  description: A full-stack web application for enterprise-level Yemeni contractors (200-500+ employees), featuring bilingual (Arabic/English) interface, glassmorphic UI, RTL support, and functionality for multi-branch management, IFRS-compliant financials, project management with Gantt charts, and real-time collaboration.
+  platform: Replit
+  development_tool: Replit Agent
+  current_status:
+    date: 2025-07-02
+    progress:
+      - Project structure established with frontend (React 18, TypeScript, Vite, TailwindCSS, Radix UI, shadcn/ui, Wouter, React Hook Form, Zod, TanStack Query) and backend (Node.js, TypeScript, Express.js, PostgreSQL with Drizzle ORM, Neon serverless database, Multer, ESBuild).
+      - Fixed issues: CSS warning (moved @import before @tailwind in index.css), console DOM validation (fixed nested anchor tags in sidebar navigation).
+      - Documentation system: Persistent tracking in replit.md, automated progress recording.
+      - Next steps: Test functionality, await user feedback.
+  user_preferences:
+    communication_style: Simple, everyday language
+    documentation: Automatically save all discussions, decisions, and progress to replit.md
+    development_approach: Fix issues as identified, maintain comprehensive documentation
+
+requirements:
+  general:
+    from_scratch: true
+    no_templates: true
+    allowed_dependencies:
+      - React 18 (frontend, minimal setup)
+      - Node.js/Express (backend, minimal setup)
+      - PostgreSQL with Drizzle ORM (database)
+      - TailwindCSS (custom styling)
+      - Radix UI (accessible component primitives)
+      - shadcn/ui (component utilities)
+      - Wouter (client-side routing)
+      - React Hook Form (form management)
+      - Zod (validation)
+      - TanStack Query (server-state management)
+      - Multer (file uploads)
+      - ESBuild (production bundling)
+      - Lucide React (icons)
+      - Chart.js (analytics visualizations, optional)
+    sequence:
+      - UI/UX Design
+      - Component-Based Architecture
+      - Simulated Workflow
+    production_readiness:
+      scalability: Optimize for high user loads (e.g., lazy loading, efficient API calls, caching)
+      error_handling: Comprehensive (e.g., form validation, API failure recovery, currency conversion errors)
+      testing: Functionality, responsiveness, RTL rendering, cross-browser compatibility (Chrome, Firefox, Safari, Edge)
+      deployment: Replit hosting with Neon database
+      documentation: Setup, usage, maintenance, IFRS compliance in replit.md
+      compliance:
+        financial: IFRS standards for project costing and billing
+        currency: Yemeni Rial with dynamic exchange rate integration
+        accessibility: WCAG 2.1 compliance
+
+steps:
+  - name: UI/UX Design
+    description: Develop a modern, intuitive interface inspired by SAP Business One and Oracle Construction Intelligence Cloud, with glassmorphic aesthetic and full Arabic RTL support.
+    tasks:
+      - layout:
+          type: Responsive, mobile-first dashboard
+          components:
+            - navigation_bar:
+                style: RTL Arabic
+                fonts:
+                  - Noto Sans Arabic
+                  - IBM Plex Sans Arabic
+            - main_content_area: For project management, financials, analytics
+            - sidebar: Quick access to organizational structure, warehouse/equipment tracking, collaboration tools
+            - header_footer: Key controls and user information
+      - style_guide:
+          colors:
+            primary: "#1B4332" # Deep forest
+            secondary: "#D4AF37" # Arabic gold
+            accent: "#40916C" # Sage green
+            background: "#F8F9FA" # Pearl white
+            glass: "#FFFFFF20" # Translucent white
+            text: "#2D3748" # Charcoal
+          design:
+            layout: RTL Arabic
+            cards: Glassmorphic with 24px spacing
+            grid: Advanced grid systems
+            accessibility: High-contrast, WCAG 2.1 compliant
+            animations: Smooth (e.g., fade-ins, hover effects)
+            breakpoints: Mobile, tablet, desktop
+      - implementation:
+          tools:
+            - TailwindCSS: Custom classes, no pre-built themes
+            - Radix UI: Accessible primitives
+            - shadcn/ui: Component utilities
+          output: Custom HTML/CSS or React components in Replit
+      - deliverables:
+          - Wireframes or visual prototype
+          - Documentation in replit.md
+      - replit_agent_tasks:
+          - Generate glassmorphic CSS with TailwindCSS for RTL dashboard
+          - Create wireframes for dashboard layout
+      - validation:
+          - Ensure RTL rendering accuracy
+          - Test mobile-first responsiveness
+          - Verify accessibility compliance
+
+  - name: Component-Based Architecture
+    description: Build modular, reusable React components for core functionality, ensuring modularity and maintainability.
+    tasks:
+      - components:
+          - organizational_structure:
+              - OrgChart: Visualize company hierarchy
+              - EmployeeHierarchy: Manage roles (CEO to field workers)
+          - financial_erp:
+              - CostingForm: IFRS-compliant project costing
+              - BillingTable: Progress billing with Yemeni Rial
+          - project_management:
+              - GanttChart: Interactive project timelines
+              - EquipmentTracker: Warehouse/equipment management
+          - collaboration_dashboard:
+              - DocumentManager: File uploads and organization
+              - AnalyticsPanel: Business intelligence visualizations
+      - implementation:
+          framework: React 18 with TypeScript
+          setup: Blank Vite project (no create-react-app)
+          routing: Wouter for client-side navigation
+          forms: React Hook Form with Zod validation
+          state_management: TanStack Query for server state, React Context for client state
+          currency_handling: Dynamic Yemeni Rial with real-time exchange rates (e.g., via ExchangeRate-API)
+          error_handling: Invalid inputs, failed API calls
+      - deliverables:
+          - Source code for components in Replit
+          - Documentation in replit.md
+      - replit_agent_tasks:
+          - Generate React component for GanttChart with RTL support
+          - Set up Wouter routing for dashboard navigation
+      - validation:
+          - Test component modularity and reusability
+          - Verify state management functionality
+          - Ensure currency handling accuracy
+
+  - name: Simulated Workflow
+    description: Implement core workflows for enterprise functionality, with dynamic features and data persistence.
+    tasks:
+      - workflows:
+          - multi_company_management:
+              features:
+                - Create and manage company hierarchies
+                - Role-based access (CEO, Manager, Supervisor, Employee, Worker)
+          - financial_erp:
+              features:
+                - IFRS-compliant project costing
+                - Progress billing
+                - Yemeni Rial transactions with dynamic exchange rates
+          - project_management:
+              features:
+                - Advanced planning with Gantt charts
+                - Equipment/warehouse tracking
+                - Subcontractor portals
+          - real_time_collaboration:
+              features:
+                - Document sharing with Multer
+                - Real-time updates via WebSocket or TanStack Query
+                - Business intelligence analytics (e.g., cost breakdowns, project milestones with Chart.js)
+      - implementation:
+          database:
+            type: PostgreSQL (Neon serverless)
+            orm: Drizzle ORM with type-safe schemas
+            schema:
+              - companies: id, name, branch
+              - projects: id, company_id, name, start_date, end_date
+              - employees: id, company_id, role, manager_id
+              - equipment: id, warehouse_id, status
+              - documents: id, project_id, file_path
+            relations: Foreign keys with cascading
+            migrations: Drizzle Kit
+          backend:
+            framework: Node.js with Express and TypeScript
+            api_prefix: /api
+            file_uploads: Multer for document management
+            build: ESBuild for production bundling
+          frontend:
+            data_fetching: TanStack Query for caching
+            forms: React Hook Form with Zod
+            real_time: WebSocket or TanStack Query
+      - deliverables:
+          - Source code for workflows in Replit
+          - Documentation in replit.md
+      - replit_agent_tasks:
+          - Configure PostgreSQL schema with Drizzle ORM
+          - Generate API endpoints for projects and companies
+          - Implement WebSocket for real-time collaboration
+      - validation:
+          - Test workflow functionality (e.g., create project, upload document)
+          - Verify real-time updates and RTL support
+          - Ensure IFRS compliance for financial features
+
+production_readiness:
+  optimization:
+    - Lazy loading for components
+    - Efficient API calls with caching (TanStack Query)
+    - Database indexing for performance
+  error_handling:
+    - Form validation with Zod
+    - API failure recovery
+    - Currency conversion error alerts
+    - Arabic toast notifications
+  testing:
+    - Functionality: Core features (e.g., Gantt charts, document uploads)
+    - Responsiveness: Mobile, tablet, desktop
+    - RTL rendering: Arabic text alignment
+    - Cross-browser: Chrome, Firefox, Safari, Edge
+    - Accessibility: WCAG 2.1 compliance
+  deployment:
+    platform: Replit hosting
+    configuration:
+      frontend_port: 3000
+      backend_port: 8000
+      database: Neon serverless PostgreSQL
+      environment_variables:
+        - DATABASE_URL
+        - UPLOAD_DIR
+      cors: Enabled for cross-origin requests
+    build:
+      client: Vite static assets (dist/public)
+      server: ESBuild bundle (dist/index.js)
+      assets: Served statically from Express
+  documentation:
+    file: replit.md
+    contents:
+      - Setup instructions
+      - Usage guide
+      - Maintenance procedures
+      - IFRS compliance details
+      - Neon database configuration
+  compliance:
+    financial: IFRS standards
+    currency: Yemeni Rial with dynamic exchange rates
+    accessibility: WCAG 2.1
+
+replit_specific:
+  database:
+    type: PostgreSQL (Neon serverless)
+    setup: Provision via Replit Tools pane
+    connection: Use DATABASE_URL environment variable
+  agent_tasks:
+    - Configure PostgreSQL connection with Drizzle ORM
+    - Generate API endpoints (e.g., /api/companies)
+    - Debug RTL rendering issues
+    - Create glassmorphic React components
+  documentation:
+    file: replit.md
+    actions:
+      - Save all agent interactions
+      - Log issue fixes (e.g., CSS warnings, DOM errors)
+      - Record progress for each step
+  environment:
+    variables:
+      - DATABASE_URL
+      - UPLOAD_DIR
+    cors: Configured for frontend-backend communication
+
+critical_instructions:
+  - Build from scratch, using only specified dependencies in minimal form
+  - Strictly follow sequence: UI/UX, components, workflow
+  - Ensure production-ready, deployable application with no placeholders
+  - Save all progress, discussions, and fixes to replit.md
+  - Fix issues as identified and log in replit.md
+  - Adapt to construction management needs for Yemeni contractors
+
+deliverables:
+  - source_code:
+      frontend: React in Replit
+      backend: Node.js/Express in Replit
+  - ui_ux: Wireframes or prototype with glassmorphic design and RTL support
+  - documentation: replit.md with setup, testing, deployment, IFRS details
+  - implementation_explanation: Brief summary in replit.md confirming scratch build and sequence adherence
+
+optional_customization:
+  - visualizations: Chart.js for analytics dashboards
+  - pwa: Extend to progressive web app with React

@@ -60,13 +60,13 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
               const Icon = item.icon;
               return (
                 <Link key={item.path} href={item.path}>
-                  <a 
-                    className="flex items-center space-x-reverse space-x-3 p-3 rounded-lg hover-glass transition-all duration-200"
+                  <div 
+                    className="flex items-center space-x-reverse space-x-3 p-3 rounded-lg hover-glass transition-all duration-200 cursor-pointer"
                     onClick={onClose}
                   >
                     <Icon className="h-5 w-5 text-primary" />
                     <span className="text-charcoal-text font-medium">{item.label}</span>
-                  </a>
+                  </div>
                 </Link>
               );
             })}
