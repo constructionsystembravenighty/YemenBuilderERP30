@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Plus, Search, Filter, Calendar, MapPin, DollarSign, Users } from "lucide-react";
+import { Plus, Search, Filter, Calendar, MapPin, DollarSign, Users, GanttChartSquare, Table, FolderOpen } from "lucide-react";
 import { GlassmorphicCard, GlassContent, GlassHeader } from "@/components/glassmorphic-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ArabicForm } from "@/components/arabic-form";
@@ -13,6 +14,9 @@ import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/currency";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { insertProjectSchema } from "@shared/schema";
+import { GanttChart, sampleGanttTasks } from "@/components/gantt/gantt-chart";
+import { AdvancedDataTable, StatusBadge, PriorityBadge } from "@/components/tables/advanced-data-table";
+import type { ColumnDef } from "@tanstack/react-table";
 import { z } from "zod";
 
 const createProjectFields = [
@@ -356,6 +360,100 @@ export default function Projects() {
           </GlassmorphicCard>
         </div>
       )}
+      
+      {/* Advanced Project Management Views */}
+      <div className="mt-8 space-y-6">
+        {/* Gantt Chart Section */}
+        <GlassmorphicCard floating>
+          <GlassHeader
+            titleAr="مخطط جانت - الجدول الزمني للمشاريع"
+            title="Gantt Chart - Project Timeline"
+            action={
+              <Button variant="outline" size="sm" className="glass-input">
+                <GanttChartSquare className="h-4 w-4 ml-2" />
+                عرض متقدم
+              </Button>
+            }
+          />
+          <GlassContent className="p-0">
+            <GanttChart 
+              tasks={sampleGanttTasks}
+              titleAr="الجدول الزمني التفصيلي للمشاريع"
+              onTaskClick={(task) => {
+                toast({
+                  title: `تم تحديد المهمة: ${task.nameAr}`,
+                  description: `التقدم: ${task.progress}% - المسؤول: ${task.assigneeAr}`,
+                });
+              }}
+            />
+          </GlassContent>
+        </GlassmorphicCard>
+
+        {/* Advanced Data Table */}
+        <AdvancedDataTable
+          columns={[
+            {
+              accessorKey: "nameAr",
+              header: "اسم المشروع",
+              cell: ({ row }) => (
+                <div className="font-medium text-charcoal-text">
+                  {row.getValue("nameAr") || row.original.name}
+                </div>
+              ),
+            },
+            {
+              accessorKey: "status",
+              header: "الحالة",
+              cell: ({ row }) => <StatusBadge status={row.getValue("status")} />,
+            },
+            {
+              accessorKey: "progress",
+              header: "التقدم",
+              cell: ({ row }) => {
+                const progress = row.getValue("progress") as number;
+                return (
+                  <div className="w-full">
+                    <div className="flex items-center space-x-reverse space-x-2">
+                      <Progress value={progress} className="w-16" />
+                      <span className="text-sm text-gray-500 min-w-[3rem]">
+                        {progress}%
+                      </span>
+                    </div>
+                  </div>
+                );
+              },
+            },
+            {
+              accessorKey: "budget",
+              header: "الميزانية",
+              cell: ({ row }) => (
+                <span className="font-medium text-primary">
+                  {formatCurrency(row.getValue("budget"))}
+                </span>
+              ),
+            },
+            {
+              accessorKey: "startDate",
+              header: "تاريخ البدء",
+              cell: ({ row }) => {
+                const date = row.getValue("startDate") as string;
+                return date ? new Date(date).toLocaleDateString('ar-YE') : '-';
+              },
+            },
+          ]}
+          data={filteredProjects || []}
+          titleAr="جدول المشاريع التفصيلي"
+          searchPlaceholderAr="ابحث في المشاريع..."
+          enableExport={true}
+          enableColumnVisibility={true}
+          onRowClick={(project) => {
+            toast({
+              title: `المشروع: ${project.nameAr || project.name}`,
+              description: `الحالة: ${project.status} - التقدم: ${project.progress}%`,
+            });
+          }}
+        />
+      </div>
     </div>
   );
 }

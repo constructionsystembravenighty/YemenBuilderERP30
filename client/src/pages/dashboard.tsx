@@ -15,7 +15,9 @@ import {
   Share,
   Target,
   Gauge,
-  TriangleAlert
+  TriangleAlert,
+  BarChart3,
+  PieChart
 } from "lucide-react";
 import { GlassmorphicCard, GlassContent, GlassHeader } from "@/components/glassmorphic-card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +25,15 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { formatCurrency } from "@/lib/currency";
+import { 
+  RevenueChart, 
+  ProjectStatusChart, 
+  EquipmentChart, 
+  MonthlyProgressChart,
+  sampleChartData,
+  sampleProjectStatus,
+  sampleEquipmentData
+} from "@/components/charts/dashboard-charts";
 
 interface DashboardStats {
   totalRevenue: number;
@@ -192,6 +203,32 @@ export default function Dashboard() {
             <Badge className="equipment-maintenance">صيانة: 5</Badge>
             <Badge className="equipment-offline">معطل: 9</Badge>
           </div>
+        </GlassmorphicCard>
+      </div>
+
+      {/* Analytics Charts Section */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+        {/* Revenue Chart */}
+        <GlassmorphicCard floating className="p-0">
+          <RevenueChart data={sampleChartData} />
+        </GlassmorphicCard>
+
+        {/* Project Status Chart */}
+        <GlassmorphicCard floating className="p-0">
+          <ProjectStatusChart data={sampleProjectStatus} />
+        </GlassmorphicCard>
+      </div>
+
+      {/* Equipment and Progress Charts */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+        {/* Equipment Status Chart */}
+        <GlassmorphicCard floating className="p-0">
+          <EquipmentChart data={sampleEquipmentData} />
+        </GlassmorphicCard>
+
+        {/* Monthly Progress Chart */}
+        <GlassmorphicCard floating className="p-0">
+          <MonthlyProgressChart data={sampleChartData} />
         </GlassmorphicCard>
       </div>
 

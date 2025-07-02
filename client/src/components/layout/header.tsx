@@ -2,6 +2,7 @@ import { Bell, Building, Menu, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { HelpSystem } from "@/components/help/help-system";
 
 interface HeaderProps {
   onMobileMenuToggle: () => void;
@@ -74,6 +75,9 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
           </div>
         </div>
       </div>
+      
+      {/* Help System */}
+      <HelpSystem />
     </nav>
   );
 }
