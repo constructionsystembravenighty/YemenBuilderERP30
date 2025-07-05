@@ -1,7 +1,7 @@
 import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { aiHelper } from "./ai-helper";
+import { businessIntelligence } from "./business-intelligence";
 import { 
   insertCompanySchema, insertUserSchema, insertProjectSchema, 
   insertTransactionSchema, insertEquipmentSchema, insertWarehouseSchema, insertDocumentSchema 
@@ -327,20 +327,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   });
 
-  // AI-powered endpoints
-  app.post("/api/ai/cost-estimation", async (req, res) => {
+  // Business Intelligence endpoints
+  app.post("/api/intelligence/cost-estimation", async (req, res) => {
     try {
-      const { description, category, location, budget } = req.body;
+      const { projectType, area, location, complexity, specifications } = req.body;
       
-      if (!description || !category || !location || !budget) {
+      if (!projectType || !area || !location || !complexity) {
         return res.status(400).json({ message: "Missing required fields" });
       }
 
-      const estimate = await aiHelper.analyzeCostEstimation(
-        description,
-        category,
+      const estimate = businessIntelligence.calculateProjectCost(
+        projectType,
+        parseFloat(area),
         location,
-        parseFloat(budget)
+        complexity,
+        specifications || []
       );
       
       res.json(estimate);
@@ -349,7 +350,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post("/api/ai/project-insights", async (req, res) => {
+  app.post("/api/intelligence/project-insights", async (req, res) => {
     try {
       const { projectId } = req.body;
       
@@ -363,9 +364,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const transactions = await storage.getTransactionsByProject(projectId);
-      const equipment = await storage.getEquipmentByCompany(project.companyId);
-
-      const insights = await aiHelper.generateProjectInsights(project, transactions, equipment);
+      const insights = businessIntelligence.analyzeProject(project, transactions);
       
       res.json(insights);
     } catch (error) {
@@ -373,7 +372,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get("/api/ai/financial-trends", async (req, res) => {
+  app.get("/api/intelligence/financial-trends", async (req, res) => {
     try {
       const companyId = parseInt(req.query.companyId as string);
       
@@ -382,7 +381,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const transactions = await storage.getTransactionsByCompany(companyId);
-      const analysis = await aiHelper.analyzeFinancialTrends(transactions);
+      const analysis = businessIntelligence.analyzeFinancialTrends(transactions);
       
       res.json(analysis);
     } catch (error) {

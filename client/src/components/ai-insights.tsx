@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { 
-  Brain, 
+  BarChart3, 
   TrendingUp, 
   AlertTriangle, 
   CheckCircle, 
@@ -52,10 +52,10 @@ export function AIInsights({ projectId, companyId }: AIInsightsProps) {
 
   // Fetch project insights if projectId is provided
   const { data: projectInsights, isLoading: insightsLoading } = useQuery<ProjectInsight>({
-    queryKey: ['/api/ai/project-insights', projectId],
+    queryKey: ['/api/intelligence/project-insights', projectId],
     queryFn: async () => {
       if (!projectId) return null;
-      const response = await fetch(`/api/ai/project-insights`, {
+      const response = await fetch(`/api/intelligence/project-insights`, {
         method: 'POST',
         body: JSON.stringify({ projectId }),
         headers: { 'Content-Type': 'application/json' }
@@ -70,22 +70,23 @@ export function AIInsights({ projectId, companyId }: AIInsightsProps) {
     monthlyTrends: any[];
     insights: string[];
   }>({
-    queryKey: ['/api/ai/financial-trends', companyId],
+    queryKey: ['/api/intelligence/financial-trends', companyId],
     queryFn: async () => {
-      const response = await fetch(`/api/ai/financial-trends?companyId=${companyId}`);
+      const response = await fetch(`/api/intelligence/financial-trends?companyId=${companyId}`);
       return response.json();
     }
   });
 
   // Cost estimation mutation
   const costEstimateMutation = useMutation<CostEstimate, Error, {
-    description: string;
-    category: string;
+    projectType: string;
+    area: string;
     location: string;
-    budget: string;
+    complexity: string;
+    specifications: string[];
   }>({
     mutationFn: async (data) => {
-      const response = await fetch('/api/ai/cost-estimation', {
+      const response = await fetch('/api/intelligence/cost-estimation', {
         method: 'POST',
         body: JSON.stringify(data),
         headers: { 'Content-Type': 'application/json' }
@@ -110,11 +111,13 @@ export function AIInsights({ projectId, companyId }: AIInsightsProps) {
   const handleCostEstimate = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
+    const specifications = (formData.get('specifications') as string || '').split(',').filter(s => s.trim());
     const data = {
-      description: formData.get('description') as string,
-      category: formData.get('category') as string,
+      projectType: formData.get('projectType') as string,
+      area: formData.get('area') as string,
       location: formData.get('location') as string,
-      budget: formData.get('budget') as string,
+      complexity: formData.get('complexity') as string,
+      specifications,
     };
     costEstimateMutation.mutate(data);
   };
@@ -132,33 +135,24 @@ export function AIInsights({ projectId, companyId }: AIInsightsProps) {
     <div className="space-y-6">
       <GlassmorphicCard>
         <GlassHeader 
-          title="AI Insights" 
-          titleAr="رؤى الذكاء الاصطناعي"
+          title="Business Intelligence" 
+          titleAr="ذكاء الأعمال"
           action={
             <Dialog open={costEstimateOpen} onOpenChange={setCostEstimateOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600">
-                  <Brain className="h-4 w-4 ml-2" />
+                  <BarChart3 className="h-4 w-4 ml-2" />
                   تقدير التكلفة
                 </Button>
               </DialogTrigger>
               <DialogContent className="max-w-md" dir="rtl">
                 <DialogHeader>
-                  <DialogTitle>تقدير التكلفة بالذكاء الاصطناعي</DialogTitle>
+                  <DialogTitle>حاسبة تقدير التكلفة المهنية</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleCostEstimate} className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium">وصف المشروع</label>
-                    <Textarea
-                      name="description"
-                      placeholder="اكتب وصفاً مفصلاً للمشروع..."
-                      required
-                    />
-                  </div>
-                  
-                  <div>
                     <label className="text-sm font-medium">نوع المشروع</label>
-                    <Select name="category" required>
+                    <Select name="projectType" required>
                       <SelectTrigger>
                         <SelectValue placeholder="اختر نوع المشروع" />
                       </SelectTrigger>
@@ -172,6 +166,16 @@ export function AIInsights({ projectId, companyId }: AIInsightsProps) {
                   </div>
                   
                   <div>
+                    <label className="text-sm font-medium">المساحة (متر مربع)</label>
+                    <Input
+                      name="area"
+                      type="number"
+                      placeholder="500"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
                     <label className="text-sm font-medium">الموقع</label>
                     <Input
                       name="location"
@@ -181,12 +185,25 @@ export function AIInsights({ projectId, companyId }: AIInsightsProps) {
                   </div>
                   
                   <div>
-                    <label className="text-sm font-medium">الميزانية المتوقعة (ريال يمني)</label>
+                    <label className="text-sm font-medium">مستوى التعقيد</label>
+                    <Select name="complexity" required>
+                      <SelectTrigger>
+                        <SelectValue placeholder="اختر مستوى التعقيد" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="simple">بسيط</SelectItem>
+                        <SelectItem value="medium">متوسط</SelectItem>
+                        <SelectItem value="complex">معقد</SelectItem>
+                        <SelectItem value="luxury">فاخر</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium">متطلبات خاصة (اختياري)</label>
                     <Input
-                      name="budget"
-                      type="number"
-                      placeholder="1000000"
-                      required
+                      name="specifications"
+                      placeholder="عزل، مقاوم للزلازل، إلخ... (مفصولة بفاصلة)"
                     />
                   </div>
                   
@@ -195,7 +212,7 @@ export function AIInsights({ projectId, companyId }: AIInsightsProps) {
                     className="w-full"
                     disabled={costEstimateMutation.isPending}
                   >
-                    {costEstimateMutation.isPending ? "جاري التحليل..." : "تحليل التكلفة"}
+                    {costEstimateMutation.isPending ? "جاري الحساب..." : "حساب التكلفة"}
                   </Button>
                 </form>
               </DialogContent>
