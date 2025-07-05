@@ -18,20 +18,20 @@ import { Button } from "@/components/ui/button";
 import { GlassmorphicCard } from "@/components/glassmorphic-card";
 
 const menuItems = [
-  { path: "/dashboard", icon: ChartLine, label: "لوحة التحكم", labelEn: "Dashboard" },
-  { path: "/projects", icon: FolderOpen, label: "إدارة المشاريع", labelEn: "Projects" },
-  { path: "/financial", icon: Calculator, label: "الإدارة المالية", labelEn: "Financial" },
-  { path: "/employees", icon: Users, label: "إدارة الموظفين", labelEn: "Employees" },
-  { path: "/warehouse", icon: Warehouse, label: "إدارة المخازن", labelEn: "Warehouse" },
-  { path: "/equipment", icon: Cog, label: "إدارة المعدات", labelEn: "Equipment" },
-  { path: "/documents", icon: FileText, label: "إدارة الوثائق", labelEn: "Documents" },
-  { path: "/reports", icon: BarChart3, label: "التقارير والتحليلات", labelEn: "Reports" },
+  { path: "/dashboard", icon: ChartLine, label: "لوحة التحكم" },
+  { path: "/projects", icon: FolderOpen, label: "إدارة المشاريع" },
+  { path: "/financial", icon: Calculator, label: "الإدارة المالية" },
+  { path: "/employees", icon: Users, label: "إدارة الموظفين" },
+  { path: "/warehouse", icon: Warehouse, label: "إدارة المخازن" },
+  { path: "/equipment", icon: Cog, label: "إدارة المعدات" },
+  { path: "/documents", icon: FileText, label: "إدارة الوثائق" },
+  { path: "/reports", icon: BarChart3, label: "التقارير والتحليلات" },
 ];
 
 const quickActions = [
-  { icon: Plus, label: "مشروع جديد", labelEn: "New Project", action: "project" },
-  { icon: UserPlus, label: "إضافة موظف", labelEn: "Add Employee", action: "employee" },
-  { icon: File, label: "إنشاء فاتورة", labelEn: "Create Invoice", action: "invoice" },
+  { icon: Plus, label: "مشروع جديد", action: "project" },
+  { icon: UserPlus, label: "إضافة موظف", action: "employee" },
+  { icon: File, label: "إنشاء فاتورة", action: "invoice" },
 ];
 
 export default function Sidebar() {

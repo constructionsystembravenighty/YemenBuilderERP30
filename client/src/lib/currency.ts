@@ -13,9 +13,12 @@ export interface CurrencyFormatOptions {
 
 // Format amount as Yemeni Rial
 export function formatCurrency(
-  amount: number,
+  amount: number | string,
   options: CurrencyFormatOptions = {}
 ): string {
+  // Convert string to number if needed
+  const numericAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
+  if (isNaN(numericAmount)) return '0 ر.ي';
   const {
     currency = 'YER',
     showSymbol = true,
@@ -26,7 +29,7 @@ export function formatCurrency(
   } = options;
 
   // Handle compact formatting (K, M, B)
-  if (compact && Math.abs(amount) >= 1000) {
+  if (compact && Math.abs(numericAmount) >= 1000) {
     const units = [
       { value: 1e9, symbol: 'مليار', symbolEn: 'B' },
       { value: 1e6, symbol: 'مليون', symbolEn: 'M' },
@@ -34,8 +37,8 @@ export function formatCurrency(
     ];
 
     for (const unit of units) {
-      if (Math.abs(amount) >= unit.value) {
-        const compactValue = (amount / unit.value).toFixed(1);
+      if (Math.abs(numericAmount) >= unit.value) {
+        const compactValue = (numericAmount / unit.value).toFixed(1);
         const symbol = useArabicNumerals ? unit.symbol : unit.symbolEn;
         return `${compactValue}${symbol} ${currency === 'YER' ? YER_SYMBOL : USD_SYMBOL}`;
       }
@@ -43,7 +46,7 @@ export function formatCurrency(
   }
 
   // Format the number with proper precision
-  const formattedAmount = amount.toFixed(precision);
+  const formattedAmount = numericAmount.toFixed(precision);
   
   // Add thousand separators
   const parts = formattedAmount.split('.');

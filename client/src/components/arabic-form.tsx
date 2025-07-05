@@ -11,11 +11,9 @@ import { cn } from "@/lib/utils";
 interface ArabicFormField {
   name: string;
   label: string;
-  labelAr?: string;
   type: "text" | "textarea" | "select" | "number" | "date" | "email" | "tel";
   placeholder?: string;
-  placeholderAr?: string;
-  options?: Array<{ value: string; label: string; labelAr?: string }>;
+  options?: Array<{ value: string; label: string }>;
   required?: boolean;
 }
 
@@ -25,7 +23,6 @@ interface ArabicFormProps {
   onSubmit: (data: any) => void;
   defaultValues?: Record<string, any>;
   submitText?: string;
-  submitTextAr?: string;
   isLoading?: boolean;
   className?: string;
 }
@@ -35,8 +32,7 @@ export function ArabicForm({
   schema,
   onSubmit,
   defaultValues = {},
-  submitText = "Submit",
-  submitTextAr = "إرسال",
+  submitText = "إرسال",
   isLoading = false,
   className
 }: ArabicFormProps) {
@@ -51,7 +47,7 @@ export function ArabicForm({
         return (
           <FormControl>
             <Textarea
-              placeholder={field.placeholderAr || field.placeholder}
+              placeholder={field.placeholder}
               className="glass-input resize-none"
               {...form.register(field.name)}
             />
@@ -66,13 +62,13 @@ export function ArabicForm({
           >
             <FormControl>
               <SelectTrigger className="glass-input">
-                <SelectValue placeholder={field.placeholderAr || field.placeholder} />
+                <SelectValue placeholder={field.placeholder} />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
               {field.options?.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
-                  {option.labelAr || option.label}
+                  {option.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -84,7 +80,7 @@ export function ArabicForm({
           <FormControl>
             <Input
               type="number"
-              placeholder={field.placeholderAr || field.placeholder}
+              placeholder={field.placeholder}
               className="glass-input"
               {...form.register(field.name, { valueAsNumber: true })}
             />
@@ -107,7 +103,7 @@ export function ArabicForm({
           <FormControl>
             <Input
               type={field.type}
-              placeholder={field.placeholderAr || field.placeholder}
+              placeholder={field.placeholder}
               className="glass-input"
               {...form.register(field.name)}
             />
@@ -127,7 +123,7 @@ export function ArabicForm({
             render={() => (
               <FormItem>
                 <FormLabel className="text-sm font-medium text-charcoal-text">
-                  {field.labelAr || field.label}
+                  {field.label}
                   {field.required && <span className="text-destructive mr-1">*</span>}
                 </FormLabel>
                 {renderField(field)}
@@ -142,7 +138,7 @@ export function ArabicForm({
           disabled={isLoading} 
           className="w-full bg-accent hover:bg-accent/90 text-white font-medium"
         >
-          {isLoading ? "جاري الإرسال..." : (submitTextAr || submitText)}
+          {isLoading ? "جاري الإرسال..." : submitText}
         </Button>
       </form>
     </Form>
