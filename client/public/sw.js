@@ -1,53 +1,534 @@
 /**
- * Advanced Service Worker for Construction Management PWA
- * Features: Offline-first caching, background sync, push notifications, periodic sync
+ * Ultra-Advanced Service Worker for Construction Management PWA
+ * Full Offline-First Architecture with Complete App Functionality
+ * Features: Comprehensive caching, offline sync, background updates, push notifications
  */
 
-const CACHE_NAME = 'construction-mgmt-v1.3.0';
-const DYNAMIC_CACHE = 'construction-dynamic-v1.3.0';
-const API_CACHE = 'construction-api-v1.3.0';
+const VERSION = '2.0.0';
+const CACHE_NAME = `construction-mgmt-v${VERSION}`;
+const DYNAMIC_CACHE = `construction-dynamic-v${VERSION}`;
+const API_CACHE = `construction-api-v${VERSION}`;
+const IMAGES_CACHE = `construction-images-v${VERSION}`;
+const FONTS_CACHE = `construction-fonts-v${VERSION}`;
 
-// Essential files to cache for offline functionality
+// Complete static assets for full offline functionality
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/favicon.ico',
   '/icon-192.svg',
   '/icon-512.svg',
   '/icon-maskable-192.svg',
   '/icon-maskable-512.svg',
-  '/favicon.ico'
+  '/browserconfig.xml',
+  '/pwa-debug.html'
 ];
 
-// Additional assets to discover and cache dynamically
+// Critical runtime assets that must be cached
+const RUNTIME_ASSETS = [
+  '/src/main.tsx',
+  '/src/App.tsx',
+  '/src/index.css',
+  '/src/components/layout/layout.tsx',
+  '/src/components/layout/header.tsx',
+  '/src/components/layout/sidebar.tsx',
+  '/src/pages/dashboard.tsx',
+  '/src/pages/projects.tsx',
+  '/src/pages/financial.tsx',
+  '/src/pages/employees.tsx',
+  '/src/lib/offline-first-api.ts',
+  '/src/lib/client-database.ts',
+  '/src/lib/sync-engine.ts'
+];
+
+// Asset patterns for dynamic caching
 const ASSET_PATTERNS = [
-  /\/assets\/.*\.js$/,
-  /\/assets\/.*\.css$/,
-  /@vite\/client$/,
-  /\/src\/.*$/,
-  /\/node_modules\/.*$/
+  /\/assets\/.*\.(js|css|woff2?|ttf|eot)$/,
+  /\/node_modules\/.*\.(js|css)$/,
+  /@vite\/client/,
+  /\/__vite_ping$/,
+  /\/src\/.*\.(tsx?|jsx?|css)$/
 ];
 
-// API endpoints to cache
+// Complete API endpoints for full offline capability
 const API_ENDPOINTS = [
+  '/api/companies',
   '/api/projects',
-  '/api/transactions', 
+  '/api/transactions',
   '/api/users',
   '/api/equipment',
-  '/api/companies',
   '/api/warehouses',
-  '/api/dashboard/stats'
+  '/api/documents',
+  '/api/dashboard/stats',
+  '/api/intelligence/financial-trends',
+  '/api/intelligence/cost-estimation',
+  '/api/sync/changes',
+  '/api/version'
 ];
 
-// Install event - cache essential assets
+// Cache strategies
+const CACHE_STRATEGIES = {
+  CACHE_FIRST: 'cache-first',
+  NETWORK_FIRST: 'network-first',
+  STALE_WHILE_REVALIDATE: 'stale-while-revalidate',
+  NETWORK_ONLY: 'network-only',
+  CACHE_ONLY: 'cache-only'
+};
+
+// Install event - comprehensive caching for full offline functionality
 self.addEventListener('install', (event) => {
-  console.log('SW: Installing service worker');
+  console.log(`SW: Installing Ultra-Advanced service worker v${VERSION}`);
   
   event.waitUntil(
     (async () => {
       try {
-        const cache = await caches.open(CACHE_NAME);
-        console.log('SW: Caching essential assets');
+        // Cache all essential static assets
+        const staticCache = await caches.open(CACHE_NAME);
+        console.log('SW: Caching static assets for offline use');
+        await staticCache.addAll(STATIC_ASSETS);
+        
+        // Pre-cache critical runtime assets with cache-busting
+        console.log('SW: Pre-caching runtime assets');
+        const runtimeRequests = RUNTIME_ASSETS.map(url => 
+          new Request(url, { cache: 'reload', mode: 'cors' })
+        );
+        
+        try {
+          await staticCache.addAll(runtimeRequests);
+        } catch (error) {
+          console.warn('SW: Some runtime assets failed to cache, continuing...', error);
+        }
+        
+        // Initialize other caches
+        await Promise.all([
+          caches.open(API_CACHE),
+          caches.open(DYNAMIC_CACHE),
+          caches.open(IMAGES_CACHE),
+          caches.open(FONTS_CACHE)
+        ]);
+        
+        console.log('SW: All caches initialized successfully');
+        
+        // Pre-cache essential API endpoints with sample data
+        const apiCache = await caches.open(API_CACHE);
+        console.log('SW: Pre-caching essential API endpoints');
+        
+        for (const endpoint of API_ENDPOINTS) {
+          try {
+            const response = await fetch(endpoint);
+            if (response.ok) {
+              await apiCache.put(endpoint, response.clone());
+            }
+          } catch (error) {
+            console.log(`SW: Could not pre-cache ${endpoint}, will cache on first request`);
+          }
+        }
+        
+        // Skip waiting to activate immediately for better UX
+        console.log('SW: Installation complete, activating immediately');
+        self.skipWaiting();
+        
+      } catch (error) {
+        console.error('SW: Installation failed:', error);
+      }
+    })()
+  );
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', (event) => {
+  console.log(`SW: Activating service worker v${VERSION}`);
+  
+  event.waitUntil(
+    (async () => {
+      try {
+        // Clean up old caches
+        const cacheNames = await caches.keys();
+        const oldCaches = cacheNames.filter(name => 
+          name.includes('construction') && !name.includes(VERSION)
+        );
+        
+        if (oldCaches.length > 0) {
+          console.log('SW: Cleaning up old caches:', oldCaches);
+          await Promise.all(oldCaches.map(name => caches.delete(name)));
+        }
+        
+        // Claim all clients immediately
+        await self.clients.claim();
+        
+        // Notify all clients about the update
+        const clients = await self.clients.matchAll();
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'SW_UPDATED',
+            version: VERSION,
+            message: 'تم تحديث التطبيق بنجاح - Application updated successfully'
+          });
+        });
+        
+        console.log('SW: Activation complete, all clients claimed');
+        
+      } catch (error) {
+        console.error('SW: Activation failed:', error);
+      }
+    })()
+  );
+});
+
+// Enhanced fetch handler with multiple caching strategies
+self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+  
+  // Skip non-GET requests for caching
+  if (request.method !== 'GET') {
+    return;
+  }
+  
+  // Handle different types of requests with appropriate strategies
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(handleApiRequest(request));
+  } else if (ASSET_PATTERNS.some(pattern => pattern.test(url.pathname))) {
+    event.respondWith(handleAssetRequest(request));
+  } else if (url.pathname.match(/\.(png|jpg|jpeg|gif|svg|webp|ico)$/)) {
+    event.respondWith(handleImageRequest(request));
+  } else if (url.pathname.match(/\.(woff2?|ttf|eot|otf)$/)) {
+    event.respondWith(handleFontRequest(request));
+  } else {
+    event.respondWith(handleNavigationRequest(request));
+  }
+});
+
+// API request handler - Network first with cache fallback
+async function handleApiRequest(request) {
+  const cache = await caches.open(API_CACHE);
+  
+  try {
+    // Try network first for fresh data
+    const networkResponse = await fetch(request);
+    
+    if (networkResponse.ok) {
+      // Cache successful responses
+      cache.put(request, networkResponse.clone());
+      return networkResponse;
+    }
+    
+    // If network fails, try cache
+    const cachedResponse = await cache.match(request);
+    if (cachedResponse) {
+      console.log('SW: Serving API request from cache:', request.url);
+      return cachedResponse;
+    }
+    
+    // Return error response if both fail
+    return new Response(JSON.stringify({ 
+      error: 'Offline - البيانات غير متوفرة حاليا',
+      offline: true 
+    }), {
+      headers: { 'Content-Type': 'application/json' },
+      status: 503
+    });
+    
+  } catch (error) {
+    console.log('SW: Network failed, trying cache for:', request.url);
+    
+    // Network failed, try cache
+    const cachedResponse = await cache.match(request);
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+    
+    // Return offline response
+    return new Response(JSON.stringify({ 
+      error: 'تطبيق غير متصل - Working offline',
+      offline: true 
+    }), {
+      headers: { 'Content-Type': 'application/json' },
+      status: 503
+    });
+  }
+}
+
+// Asset request handler - Cache first with network fallback
+async function handleAssetRequest(request) {
+  const cache = await caches.open(DYNAMIC_CACHE);
+  
+  // Try cache first for assets
+  let cachedResponse = await cache.match(request);
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  
+  try {
+    // If not in cache, fetch from network
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    console.log('SW: Asset request failed:', request.url);
+    return new Response('Asset unavailable offline', { status: 503 });
+  }
+}
+
+// Image request handler - Cache first
+async function handleImageRequest(request) {
+  const cache = await caches.open(IMAGES_CACHE);
+  
+  let cachedResponse = await cache.match(request);
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    // Return fallback icon for images
+    return caches.match('/icon-192.svg');
+  }
+}
+
+// Font request handler - Cache first
+async function handleFontRequest(request) {
+  const cache = await caches.open(FONTS_CACHE);
+  
+  let cachedResponse = await cache.match(request);
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  
+  try {
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      cache.put(request, networkResponse.clone());
+    }
+    return networkResponse;
+  } catch (error) {
+    return new Response('Font unavailable', { status: 503 });
+  }
+}
+
+// Navigation request handler - Cache first with network fallback
+async function handleNavigationRequest(request) {
+  const cache = await caches.open(CACHE_NAME);
+  
+  try {
+    // For navigation requests, always try network first for fresh content
+    const networkResponse = await fetch(request);
+    if (networkResponse.ok) {
+      cache.put(request, networkResponse.clone());
+      return networkResponse;
+    }
+  } catch (error) {
+    console.log('SW: Navigation network failed, trying cache');
+  }
+  
+  // Try cache for navigation
+  let cachedResponse = await cache.match(request);
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  
+  // Fallback to index.html for SPA routes
+  cachedResponse = await cache.match('/');
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  
+  // Ultimate fallback
+  return new Response('App unavailable offline', { 
+    status: 503,
+    headers: { 'Content-Type': 'text/html' }
+  });
+}
+
+// Background sync for offline actions
+self.addEventListener('sync', (event) => {
+  console.log('SW: Background sync triggered:', event.tag);
+  
+  if (event.tag === 'background-sync') {
+    event.waitUntil(performBackgroundSync());
+  }
+});
+
+// Perform background synchronization
+async function performBackgroundSync() {
+  try {
+    console.log('SW: Performing background sync...');
+    
+    // Try to sync pending offline actions
+    const syncResponse = await fetch('/api/sync/upload', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    });
+    
+    if (syncResponse.ok) {
+      console.log('SW: Background sync successful');
+      
+      // Notify clients about successful sync
+      const clients = await self.clients.matchAll();
+      clients.forEach(client => {
+        client.postMessage({
+          type: 'SYNC_SUCCESS',
+          message: 'تم مزامنة البيانات بنجاح - Data synced successfully'
+        });
+      });
+    }
+  } catch (error) {
+    console.log('SW: Background sync failed:', error);
+  }
+}
+
+// Push notification handler
+self.addEventListener('push', (event) => {
+  console.log('SW: Push message received');
+  
+  let data = {};
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (error) {
+      data = { title: 'إشعار جديد', body: event.data.text() };
+    }
+  }
+  
+  const options = {
+    title: data.title || 'منصة إدارة البناء',
+    body: data.body || 'لديك إشعار جديد',
+    icon: '/icon-192.svg',
+    badge: '/icon-192.svg',
+    image: data.image,
+    data: data,
+    dir: 'rtl',
+    lang: 'ar',
+    requireInteraction: true,
+    actions: [
+      {
+        action: 'view',
+        title: 'عرض',
+        icon: '/icon-192.svg'
+      },
+      {
+        action: 'dismiss',
+        title: 'إغلاق'
+      }
+    ],
+    tag: data.tag || 'general'
+  };
+  
+  event.waitUntil(
+    self.registration.showNotification(options.title, options)
+  );
+});
+
+// Handle notification clicks
+self.addEventListener('notificationclick', (event) => {
+  console.log('SW: Notification clicked:', event.action);
+  
+  event.notification.close();
+  
+  const urlToOpen = event.notification.data?.url || '/';
+  
+  event.waitUntil(
+    self.clients.matchAll().then((clients) => {
+      // Check if app is already open
+      const client = clients.find(c => c.url.includes(urlToOpen));
+      
+      if (client) {
+        // Focus existing window
+        return client.focus();
+      } else {
+        // Open new window
+        return self.clients.openWindow(urlToOpen);
+      }
+    })
+  );
+});
+
+// Periodic background sync (if supported)
+self.addEventListener('periodicsync', (event) => {
+  console.log('SW: Periodic sync triggered:', event.tag);
+  
+  if (event.tag === 'periodic-sync') {
+    event.waitUntil(performPeriodicSync());
+  }
+});
+
+// Perform periodic sync
+async function performPeriodicSync() {
+  try {
+    console.log('SW: Performing periodic sync...');
+    
+    // Check for updates and sync data
+    const updateResponse = await fetch('/api/sync/check-updates');
+    
+    if (updateResponse.ok) {
+      const updates = await updateResponse.json();
+      
+      if (updates.hasUpdates) {
+        // Notify user about available updates
+        self.registration.showNotification('تحديثات متاحة', {
+          body: 'يوجد تحديثات جديدة للبيانات',
+          icon: '/icon-192.svg',
+          tag: 'updates-available'
+        });
+      }
+    }
+  } catch (error) {
+    console.log('SW: Periodic sync failed:', error);
+  }
+}
+
+// Handle messages from clients
+self.addEventListener('message', (event) => {
+  console.log('SW: Message received:', event.data);
+  
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  
+  if (event.data && event.data.type === 'GET_VERSION') {
+    event.ports[0].postMessage({ version: VERSION });
+  }
+  
+  if (event.data && event.data.type === 'FORCE_SYNC') {
+    performBackgroundSync();
+  }
+});
+
+// Cache size management
+async function manageCacheSize() {
+  try {
+    const caches = await self.caches.keys();
+    
+    for (const cacheName of caches) {
+      const cache = await self.caches.open(cacheName);
+      const requests = await cache.keys();
+      
+      // Limit cache size to prevent storage issues
+      if (requests.length > 100) {
+        const oldRequests = requests.slice(0, 20); // Remove oldest 20 items
+        await Promise.all(oldRequests.map(request => cache.delete(request)));
+        console.log(`SW: Cleaned up ${oldRequests.length} items from ${cacheName}`);
+      }
+    }
+  } catch (error) {
+    console.log('SW: Cache management failed:', error);
+  }
+}
+
+// Periodic cache cleanup
+setInterval(manageCacheSize, 24 * 60 * 60 * 1000); // Daily cleanup
+
+console.log(`SW: Ultra-Advanced Service Worker v${VERSION} loaded successfully`);
+console.log('SW: Full offline functionality enabled with comprehensive caching');
+console.log('SW: Arabic PWA features activated');
         
         // Cache essential static assets
         const cachePromises = STATIC_ASSETS.map(async (url) => {

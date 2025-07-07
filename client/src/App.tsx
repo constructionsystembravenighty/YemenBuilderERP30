@@ -33,6 +33,39 @@ import { OfflineBanner } from "@/components/network-status";
 import { PWASetup } from "@/components/pwa/pwa-setup";
 import AndroidPWASetup from "@/components/pwa/android-pwa-setup";
 import EnhancedServiceWorker from "@/components/pwa/enhanced-service-worker";
+import { EnhancedInstallPrompt, usePWAInstall } from "@/components/pwa/enhanced-install-prompt";
+
+// PWA Installation Prompt Manager
+function InstallPromptManager() {
+  const { canInstall, isInstalled } = usePWAInstall();
+  const [showPrompt, setShowPrompt] = useState(true);
+
+  useEffect(() => {
+    // Only show prompt after a delay to not interfere with initial loading
+    const timer = setTimeout(() => {
+      if (canInstall && !isInstalled && !sessionStorage.getItem('installPromptDismissed')) {
+        setShowPrompt(true);
+      }
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [canInstall, isInstalled]);
+
+  const handleDismiss = () => {
+    setShowPrompt(false);
+    sessionStorage.setItem('installPromptDismissed', 'true');
+  };
+
+  if (!showPrompt || isInstalled || !canInstall) {
+    return null;
+  }
+
+  return (
+    <div className="container mx-auto px-4 pt-4">
+      <EnhancedInstallPrompt onDismiss={handleDismiss} />
+    </div>
+  );
+}
 
 function Router() {
   return (
@@ -134,6 +167,7 @@ function App() {
         <TooltipProvider>
           <OfflineInitializer>
             <OfflineBanner />
+            <InstallPromptManager />
             <Layout>
               <Router />
             </Layout>
