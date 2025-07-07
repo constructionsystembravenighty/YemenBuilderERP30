@@ -1,7 +1,14 @@
 // Arabic date formatting utilities
-export function formatArabicDate(date: Date, format: 'short' | 'long' | 'relative' = 'short'): string {
+export function formatArabicDate(date: Date | string | null | undefined, format: 'short' | 'long' | 'relative' = 'short'): string {
+  if (!date) return 'غير محدد';
+  
+  const dateObj = typeof date === 'string' ? new Date(date) : date;
+  if (!(dateObj instanceof Date) || isNaN(dateObj.getTime())) {
+    return 'تاريخ غير صحيح';
+  }
+  
   const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
+  const diffMs = now.getTime() - dateObj.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   
   if (format === 'relative') {
@@ -20,9 +27,9 @@ export function formatArabicDate(date: Date, format: 'short' | 'long' | 'relativ
     'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'
   ];
   
-  const day = date.getDate();
-  const month = arabicMonths[date.getMonth()];
-  const year = date.getFullYear();
+  const day = dateObj.getDate();
+  const month = arabicMonths[dateObj.getMonth()];
+  const year = dateObj.getFullYear();
   
   if (format === 'short') {
     return `${day} ${month} ${year}`;
@@ -32,7 +39,7 @@ export function formatArabicDate(date: Date, format: 'short' | 'long' | 'relativ
     'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'
   ];
   
-  const dayName = arabicDays[date.getDay()];
+  const dayName = arabicDays[dateObj.getDay()];
   
   return `${dayName}، ${day} ${month} ${year}`;
 }

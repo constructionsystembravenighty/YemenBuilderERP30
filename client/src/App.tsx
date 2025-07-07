@@ -7,6 +7,9 @@ import { RTLProvider } from "@/components/ui/rtl-provider";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Projects from "@/pages/projects";
+import ActiveProjects from "@/pages/projects/active";
+import CompletedProjects from "@/pages/projects/completed";
+import PlanningProjects from "@/pages/projects/planning";
 import Financial from "@/pages/financial";
 import Employees from "@/pages/employees";
 import Warehouse from "@/pages/warehouse";
@@ -25,9 +28,9 @@ function Router() {
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/projects" component={Projects} />
         <Route path="/projects/:id" component={Projects} />
-        <Route path="/projects/active" component={Projects} />
-        <Route path="/projects/completed" component={Projects} />
-        <Route path="/projects/planning" component={Projects} />
+        <Route path="/projects/active" component={ActiveProjects} />
+        <Route path="/projects/completed" component={CompletedProjects} />
+        <Route path="/projects/planning" component={PlanningProjects} />
         <Route path="/financial" component={Financial} />
         <Route path="/financial/transactions" component={Financial} />
         <Route path="/financial/budgets" component={Financial} />
