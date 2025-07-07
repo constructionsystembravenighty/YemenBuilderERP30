@@ -12,8 +12,10 @@ const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png',
+  '/icon-192.svg',
+  '/icon-512.svg',
+  '/icon-maskable-192.svg',
+  '/icon-maskable-512.svg',
   // Add critical CSS and JS files here
 ];
 
@@ -358,14 +360,42 @@ async function syncOfflineTransactions() {
   }
 }
 
-// Push notification handling
+// Enhanced PWA installation event handling
+self.addEventListener('beforeinstallprompt', (event) => {
+  console.log('SW: beforeinstallprompt event captured');
+  // Inform the main thread that the prompt is available
+  self.clients.matchAll().then(clients => {
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'INSTALL_PROMPT_AVAILABLE',
+        timestamp: Date.now()
+      });
+    });
+  });
+});
+
+// Handle app installation
+self.addEventListener('appinstalled', (event) => {
+  console.log('SW: App was installed successfully');
+  // Notify all clients about successful installation
+  self.clients.matchAll().then(clients => {
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'APP_INSTALLED',
+        timestamp: Date.now()
+      });
+    });
+  });
+});
+
+// Push notification handling with SVG icons
 self.addEventListener('push', (event) => {
   console.log('SW: Push notification received');
   
   const options = {
     body: event.data ? event.data.text() : 'إشعار جديد من منصة إدارة البناء',
-    icon: '/icon-192.png',
-    badge: '/icon-72.png',
+    icon: '/icon-192.svg',
+    badge: '/icon-192.svg',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -375,12 +405,12 @@ self.addEventListener('push', (event) => {
       {
         action: 'explore',
         title: 'عرض التفاصيل',
-        icon: '/icon-72.png'
+        icon: '/icon-192.svg'
       },
       {
         action: 'close',
         title: 'إغلاق',
-        icon: '/icon-72.png'
+        icon: '/icon-192.svg'
       }
     ],
     tag: 'construction-notification',

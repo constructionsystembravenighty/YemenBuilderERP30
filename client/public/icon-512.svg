@@ -1,0 +1,27 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with Arabic Green -->
+  <rect width="512" height="512" fill="#1B4332" rx="64"/>
+  
+  <!-- Construction Building Icon -->
+  <path d="M128 384V256L256 192L384 256V384H320V300H192V384H128Z" fill="#D4AF37"/>
+  <rect x="212" y="320" width="88" height="64" fill="#1B4332"/>
+  <rect x="236" y="340" width="40" height="24" fill="#D4AF37"/>
+  
+  <!-- Windows -->
+  <rect x="160" y="280" width="24" height="24" fill="#1B4332"/>
+  <rect x="200" y="280" width="24" height="24" fill="#1B4332"/>
+  <rect x="288" y="280" width="24" height="24" fill="#1B4332"/>
+  <rect x="328" y="280" width="24" height="24" fill="#1B4332"/>
+  
+  <!-- Arabic Construction Symbol -->
+  <circle cx="256" cy="160" r="20" fill="#D4AF37"/>
+  <path d="M236 140H276L256 96L236 140Z" fill="#D4AF37"/>
+  
+  <!-- Corner Decorations -->
+  <circle cx="448" cy="64" r="16" fill="#D4AF37" opacity="0.7"/>
+  <circle cx="64" cy="448" r="16" fill="#D4AF37" opacity="0.7"/>
+  
+  <!-- Arabic Pattern Border -->
+  <path d="M64 64L128 64L96 96Z" fill="#D4AF37" opacity="0.3"/>
+  <path d="M448 448L384 448L416 416Z" fill="#D4AF37" opacity="0.3"/>
+</svg>

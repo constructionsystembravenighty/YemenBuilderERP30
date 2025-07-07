@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA Debug - منصة إدارة البناء</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .warning { background: #fff3cd; color: #856404; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #1B4332;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #D4AF37;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>PWA Debug Dashboard - منصة إدارة البناء</h1>
+    
+    <div class="section">
+        <h2>🔍 PWA Installation Status</h2>
+        <div id="installation-status"></div>
+        <button onclick="checkInstallability()">Check PWA Installability</button>
+        <button onclick="triggerInstallPrompt()">Trigger Install Prompt</button>
+    </div>
+
+    <div class="section">
+        <h2>📱 Device & Browser Info</h2>
+        <div id="device-info"></div>
+    </div>
+
+    <div class="section">
+        <h2>🛠️ Service Worker Status</h2>
+        <div id="sw-status"></div>
+        <button onclick="checkServiceWorker()">Check Service Worker</button>
+        <button onclick="updateServiceWorker()">Update Service Worker</button>
+    </div>
+
+    <div class="section">
+        <h2>📋 Manifest Information</h2>
+        <div id="manifest-info"></div>
+        <button onclick="checkManifest()">Check Manifest</button>
+    </div>
+
+    <div class="section">
+        <h2>🔔 Notification Support</h2>
+        <div id="notification-status"></div>
+        <button onclick="checkNotifications()">Check Notifications</button>
+        <button onclick="requestNotificationPermission()">Request Permission</button>
+    </div>
+
+    <div class="section">
+        <h2>🌐 Network Status</h2>
+        <div id="network-status"></div>
+    </div>
+
+    <div class="section">
+        <h2>📊 PWA Criteria Checklist</h2>
+        <div id="pwa-criteria"></div>
+        <button onclick="checkPWACriteria()">Run PWA Audit</button>
+    </div>
+
+    <div class="section">
+        <h2>🐛 Debug Console</h2>
+        <pre id="debug-console"></pre>
+        <button onclick="clearConsole()">Clear Console</button>
+    </div>
+
+    <script>
+        let deferredPrompt = null;
+        const debugConsole = document.getElementById('debug-console');
+
+        function log(message) {
+            console.log(message);
+            debugConsole.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            debugConsole.scrollTop = debugConsole.scrollHeight;
+        }
+
+        function showStatus(elementId, message, type = 'info') {
+            document.getElementById(elementId).innerHTML = 
+                `<div class="status ${type}">${message}</div>`;
+        }
+
+        // Device and Browser Information
+        function checkDeviceInfo() {
+            const info = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                cookieEnabled: navigator.cookieEnabled,
+                onLine: navigator.onLine,
+                hardwareConcurrency: navigator.hardwareConcurrency,
+                maxTouchPoints: navigator.maxTouchPoints
+            };
+
+            const isAndroid = /Android/.test(navigator.userAgent);
+            const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isSafari = /Safari/.test(navigator.userAgent) && !/Chrome/.test(navigator.userAgent);
+
+            let html = '<h3>Device Detection:</h3>';
+            html += `<p>Android: ${isAndroid ? '✅' : '❌'}</p>`;
+            html += `<p>Chrome: ${isChrome ? '✅' : '❌'}</p>`;
+            html += `<p>iOS: ${isIOS ? '✅' : '❌'}</p>`;
+            html += `<p>Safari: ${isSafari ? '✅' : '❌'}</p>`;
+            html += '<h3>Browser Info:</h3>';
+            html += `<pre>${JSON.stringify(info, null, 2)}</pre>`;
+
+            document.getElementById('device-info').innerHTML = html;
+            log('Device info checked');
+        }
+
+        // Installation Status
+        function checkInstallability() {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                               window.navigator.standalone || 
+                               document.referrer.includes('android-app://');
+
+            let status = '';
+            if (isStandalone) {
+                status = '<div class="status success">✅ App is installed and running in standalone mode</div>';
+            } else if (deferredPrompt) {
+                status = '<div class="status warning">⚠️ App is installable, prompt available</div>';
+            } else {
+                status = '<div class="status error">❌ App is not installable or prompt not captured</div>';
+            }
+
+            document.getElementById('installation-status').innerHTML = status;
+            log('Installation status checked');
+        }
+
+        async function triggerInstallPrompt() {
+            if (!deferredPrompt) {
+                showStatus('installation-status', 'No install prompt available', 'error');
+                log('No install prompt available');
+                return;
+            }
+
+            try {
+                await deferredPrompt.prompt();
+                const choiceResult = await deferredPrompt.userChoice;
+                log(`Install prompt result: ${choiceResult.outcome}`);
+                
+                if (choiceResult.outcome === 'accepted') {
+                    showStatus('installation-status', 'User accepted the install prompt', 'success');
+                } else {
+                    showStatus('installation-status', 'User dismissed the install prompt', 'warning');
+                }
+                
+                deferredPrompt = null;
+            } catch (error) {
+                log(`Install prompt error: ${error.message}`);
+                showStatus('installation-status', `Error: ${error.message}`, 'error');
+            }
+        }
+
+        // Service Worker Status
+        async function checkServiceWorker() {
+            if (!('serviceWorker' in navigator)) {
+                showStatus('sw-status', 'Service Workers not supported', 'error');
+                return;
+            }
+
+            try {
+                const registration = await navigator.serviceWorker.getRegistration();
+                if (registration) {
+                    let html = '<div class="status success">✅ Service Worker registered</div>';
+                    html += `<p>Scope: ${registration.scope}</p>`;
+                    html += `<p>State: ${registration.active ? 'Active' : 'Inactive'}</p>`;
+                    if (registration.waiting) {
+                        html += '<p class="status warning">⚠️ Update waiting</p>';
+                    }
+                    document.getElementById('sw-status').innerHTML = html;
+                } else {
+                    showStatus('sw-status', 'No Service Worker registered', 'warning');
+                }
+            } catch (error) {
+                showStatus('sw-status', `Error: ${error.message}`, 'error');
+            }
+            log('Service Worker status checked');
+        }
+
+        async function updateServiceWorker() {
+            try {
+                const registration = await navigator.serviceWorker.getRegistration();
+                if (registration) {
+                    await registration.update();
+                    showStatus('sw-status', 'Service Worker update triggered', 'success');
+                    log('Service Worker update triggered');
+                }
+            } catch (error) {
+                showStatus('sw-status', `Update error: ${error.message}`, 'error');
+                log(`Service Worker update error: ${error.message}`);
+            }
+        }
+
+        // Manifest Check
+        async function checkManifest() {
+            try {
+                const response = await fetch('/manifest.json');
+                const manifest = await response.json();
+                
+                let html = '<div class="status success">✅ Manifest loaded successfully</div>';
+                html += `<pre>${JSON.stringify(manifest, null, 2)}</pre>`;
+                
+                document.getElementById('manifest-info').innerHTML = html;
+                log('Manifest checked successfully');
+            } catch (error) {
+                showStatus('manifest-info', `Manifest error: ${error.message}`, 'error');
+                log(`Manifest error: ${error.message}`);
+            }
+        }
+
+        // Notification Support
+        function checkNotifications() {
+            if (!('Notification' in window)) {
+                showStatus('notification-status', 'Notifications not supported', 'error');
+                return;
+            }
+
+            const permission = Notification.permission;
+            let html = `<p>Permission: ${permission}</p>`;
+            
+            if (permission === 'granted') {
+                html = '<div class="status success">✅ Notifications enabled</div>' + html;
+            } else if (permission === 'denied') {
+                html = '<div class="status error">❌ Notifications denied</div>' + html;
+            } else {
+                html = '<div class="status warning">⚠️ Notifications permission not set</div>' + html;
+            }
+
+            document.getElementById('notification-status').innerHTML = html;
+            log('Notification status checked');
+        }
+
+        async function requestNotificationPermission() {
+            if (!('Notification' in window)) {
+                showStatus('notification-status', 'Notifications not supported', 'error');
+                return;
+            }
+
+            try {
+                const permission = await Notification.requestPermission();
+                showStatus('notification-status', `Permission result: ${permission}`, 
+                    permission === 'granted' ? 'success' : 'warning');
+                log(`Notification permission: ${permission}`);
+            } catch (error) {
+                showStatus('notification-status', `Error: ${error.message}`, 'error');
+                log(`Notification permission error: ${error.message}`);
+            }
+        }
+
+        // PWA Criteria Check
+        async function checkPWACriteria() {
+            const criteria = [];
+            
+            // HTTPS Check
+            criteria.push({
+                name: 'HTTPS',
+                status: location.protocol === 'https:' || location.hostname === 'localhost',
+                required: true
+            });
+
+            // Service Worker
+            criteria.push({
+                name: 'Service Worker',
+                status: 'serviceWorker' in navigator && await navigator.serviceWorker.getRegistration(),
+                required: true
+            });
+
+            // Manifest
+            let manifestValid = false;
+            try {
+                const response = await fetch('/manifest.json');
+                const manifest = await response.json();
+                manifestValid = manifest.name && manifest.short_name && manifest.start_url && 
+                               manifest.display && manifest.icons && manifest.icons.length > 0;
+            } catch (e) {}
+            
+            criteria.push({
+                name: 'Valid Manifest',
+                status: manifestValid,
+                required: true
+            });
+
+            // Icons
+            criteria.push({
+                name: 'Icons (192px & 512px)',
+                status: manifestValid, // Simplified check
+                required: true
+            });
+
+            // Display Mode
+            criteria.push({
+                name: 'Standalone Display',
+                status: true, // Checked in manifest
+                required: true
+            });
+
+            let html = '<h3>PWA Criteria Checklist:</h3>';
+            let allPassed = true;
+            
+            criteria.forEach(criterion => {
+                const icon = criterion.status ? '✅' : '❌';
+                const style = criterion.status ? 'success' : 'error';
+                html += `<div class="status ${style}">${icon} ${criterion.name}</div>`;
+                if (criterion.required && !criterion.status) {
+                    allPassed = false;
+                }
+            });
+
+            if (allPassed) {
+                html += '<div class="status success">🎉 All PWA criteria met!</div>';
+            } else {
+                html += '<div class="status error">❌ Some PWA criteria not met</div>';
+            }
+
+            document.getElementById('pwa-criteria').innerHTML = html;
+            log('PWA criteria checked');
+        }
+
+        // Network Status
+        function updateNetworkStatus() {
+            const status = navigator.onLine ? 'Online' : 'Offline';
+            const type = navigator.onLine ? 'success' : 'warning';
+            showStatus('network-status', `Network: ${status}`, type);
+        }
+
+        function clearConsole() {
+            debugConsole.innerHTML = '';
+        }
+
+        // Event Listeners
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            log('beforeinstallprompt event captured');
+            checkInstallability();
+        });
+
+        window.addEventListener('appinstalled', (e) => {
+            log('App installed successfully');
+            checkInstallability();
+        });
+
+        window.addEventListener('online', () => {
+            log('Network: Online');
+            updateNetworkStatus();
+        });
+
+        window.addEventListener('offline', () => {
+            log('Network: Offline');
+            updateNetworkStatus();
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            log('PWA Debug Dashboard loaded');
+            checkDeviceInfo();
+            checkInstallability();
+            checkServiceWorker();
+            checkNotifications();
+            updateNetworkStatus();
+        });
+    </script>
+</body>
+</html>

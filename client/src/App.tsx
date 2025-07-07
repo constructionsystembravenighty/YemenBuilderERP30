@@ -29,6 +29,8 @@ import MobileNavigation from "@/components/mobile/mobile-navigation";
 import { ServiceWorkerSetup } from "@/components/pwa/service-worker-setup";
 import { OfflineBanner } from "@/components/network-status";
 import { PWASetup } from "@/components/pwa/pwa-setup";
+import AndroidPWASetup from "@/components/pwa/android-pwa-setup";
+import EnhancedServiceWorker from "@/components/pwa/enhanced-service-worker";
 
 function Router() {
   return (
@@ -128,6 +130,8 @@ function App() {
             <MobileNavigation />
             <ServiceWorkerSetup />
             <PWASetup />
+            <AndroidPWASetup />
+            <EnhancedServiceWorker />
             <Toaster />
           </OfflineInitializer>
         </TooltipProvider>

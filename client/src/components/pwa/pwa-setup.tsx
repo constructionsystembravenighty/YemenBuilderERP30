@@ -19,8 +19,11 @@ export function PWASetup() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Detect iOS
+    // Enhanced device detection
     const iOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const isAndroid = /Android/.test(navigator.userAgent);
+    const isChrome = /Chrome/.test(navigator.userAgent) && /Google Inc/.test(navigator.vendor);
+    
     setIsIOS(iOS);
 
     // Check if app is already running in standalone mode
@@ -35,15 +38,19 @@ export function PWASetup() {
       return;
     }
 
-    // Listen for beforeinstallprompt event
+    // Enhanced beforeinstallprompt handler for Android
     const handleBeforeInstallPrompt = (e: Event) => {
+      console.log('PWA: beforeinstallprompt event fired');
       e.preventDefault();
       setDeferredPrompt(e as BeforeInstallPromptEvent);
       
-      // Show install banner after a delay if not installed
+      // Show install banner after a shorter delay for better UX
       setTimeout(() => {
-        setShowInstallBanner(true);
-      }, 3000);
+        if (isAndroid && isChrome) {
+          setShowInstallBanner(true);
+          console.log('PWA: Showing install banner for Android Chrome');
+        }
+      }, 2000);
     };
 
     // Listen for app installation
@@ -74,27 +81,45 @@ export function PWASetup() {
   }, [toast]);
 
   const handleInstallClick = async () => {
-    if (!deferredPrompt) return;
+    if (!deferredPrompt) {
+      console.log('PWA: No deferred prompt available');
+      // Show manual installation instructions for Android
+      toast({
+        title: "تثبيت التطبيق يدوياً",
+        description: "اضغط على قائمة المتصفح (⋮) ← 'إضافة إلى الشاشة الرئيسية'",
+        duration: 8000,
+      });
+      return;
+    }
 
     try {
+      console.log('PWA: Prompting installation');
       await deferredPrompt.prompt();
       const choiceResult = await deferredPrompt.userChoice;
+      
+      console.log('PWA: User choice result:', choiceResult.outcome);
       
       if (choiceResult.outcome === 'accepted') {
         toast({
           title: "جاري تثبيت التطبيق...",
-          description: "سيتم إضافة المنصة إلى الشاشة الرئيسية",
+          description: "سيتم إضافة المنصة إلى الشاشة الرئيسية خلال ثوانٍ",
+        });
+        setIsInstalled(true);
+      } else {
+        toast({
+          title: "تم إلغاء التثبيت",
+          description: "يمكنك تثبيت التطبيق لاحقاً من قائمة المتصفح",
         });
       }
       
       setDeferredPrompt(null);
       setShowInstallBanner(false);
     } catch (error) {
-      console.error('Installation failed:', error);
+      console.error('PWA: Installation failed:', error);
       toast({
         variant: "destructive",
         title: "فشل في التثبيت",
-        description: "حدث خطأ أثناء تثبيت التطبيق",
+        description: "جرب التثبيت من قائمة المتصفح: ⋮ ← 'إضافة إلى الشاشة الرئيسية'",
       });
     }
   };

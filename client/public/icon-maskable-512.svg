@@ -1,0 +1,22 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Safe area for maskable icon (must extend to edges) -->
+  <rect width="512" height="512" fill="#1B4332"/>
+  
+  <!-- Central icon area (within safe zone) -->
+  <g transform="translate(102, 102)">
+    <!-- Construction Building Icon scaled appropriately -->
+    <path d="M52 192V128L154 96L256 128V192H214V150H94V192H52Z" fill="#D4AF37"/>
+    <rect x="118" y="160" width="44" height="32" fill="#1B4332"/>
+    <rect x="130" y="170" width="20" height="12" fill="#D4AF37"/>
+    
+    <!-- Windows -->
+    <rect x="80" y="140" width="12" height="12" fill="#1B4332"/>
+    <rect x="100" y="140" width="12" height="12" fill="#1B4332"/>
+    <rect x="196" y="140" width="12" height="12" fill="#1B4332"/>
+    <rect x="216" y="140" width="12" height="12" fill="#1B4332"/>
+    
+    <!-- Arabic Construction Symbol -->
+    <circle cx="154" cy="80" r="10" fill="#D4AF37"/>
+    <path d="M144 70H164L154 48L144 70Z" fill="#D4AF37"/>
+  </g>
+</svg>
