@@ -1,16 +1,24 @@
-import { Bell, Building, Menu, User, Search } from "lucide-react";
+import { Bell, Building, Menu, User, Search, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { HelpSystem } from "@/components/help/help-system";
 import { Input } from "@/components/ui/input";
 import { QuickActions } from "@/components/navigation/quick-actions";
+import { NotificationCenter } from "@/components/notifications/notification-center";
+import { AdvancedSearch } from "@/components/search/advanced-search";
+import { PerformanceMonitor } from "@/components/performance/performance-monitor";
+import { useState } from "react";
 
 interface HeaderProps {
   onMobileMenuToggle: () => void;
 }
 
 export default function Header({ onMobileMenuToggle }: HeaderProps) {
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [showPerformanceMonitor, setShowPerformanceMonitor] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+
   return (
     <nav className="glass-nav fixed top-0 right-0 left-0 z-50 px-6 py-4">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -58,7 +66,20 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
               type="text"
               placeholder="البحث..."
               className="w-64 pr-10 bg-white bg-opacity-20 border-white border-opacity-30 text-white placeholder-gray-300"
+              onFocus={() => setShowAdvancedSearch(true)}
             />
+          </div>
+          
+          {/* Performance Monitor Button */}
+          <div className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white hover:text-secondary"
+              onClick={() => setShowPerformanceMonitor(!showPerformanceMonitor)}
+            >
+              <Activity className="h-5 w-5" />
+            </Button>
           </div>
           
           {/* Quick Actions */}
@@ -67,16 +88,7 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
           </div>
           
           {/* Notifications */}
-          <div className="relative">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="text-white hover:text-secondary"
-            >
-              <Bell className="h-5 w-5" />
-            </Button>
-            <div className="notification-dot absolute -top-1 -right-1 w-3 h-3 rounded-full"></div>
-          </div>
+          <NotificationCenter />
           
           {/* User Profile */}
           <div className="flex items-center space-x-reverse space-x-3">
@@ -95,6 +107,20 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
       
       {/* Help System */}
       <HelpSystem />
+      
+      {/* Advanced Search Modal */}
+      <AdvancedSearch 
+        isOpen={showAdvancedSearch}
+        onClose={() => setShowAdvancedSearch(false)}
+        onResults={setSearchResults}
+      />
+      
+      {/* Performance Monitor */}
+      {showPerformanceMonitor && (
+        <div className="fixed bottom-4 right-4 w-96 z-50">
+          <PerformanceMonitor />
+        </div>
+      )}
     </nav>
   );
 }

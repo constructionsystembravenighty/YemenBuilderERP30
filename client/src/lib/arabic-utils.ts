@@ -145,8 +145,12 @@ export function getArabicInitials(name: string): string {
     .substring(0, 2);
 }
 
+// Alias for backward compatibility
+export const formatDate = formatArabicDate;
+
 export default {
   formatArabicDate,
+  formatDate,
   toArabicNumerals,
   toEnglishNumerals,
   formatArabicText,
