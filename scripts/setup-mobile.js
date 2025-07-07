@@ -7,9 +7,9 @@
  * for offline-first construction management on mobile devices.
  */
 
-const { execSync } = require('child_process');
-const fs = require('fs');
-const path = require('path');
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 console.log('📱 Setting up Construction Management Mobile Application\n');
 
