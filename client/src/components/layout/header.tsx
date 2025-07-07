@@ -8,6 +8,7 @@ import { QuickActions } from "@/components/navigation/quick-actions";
 import { NotificationCenter } from "@/components/notifications/notification-center";
 import { AdvancedSearch } from "@/components/search/advanced-search";
 import { PerformanceMonitor } from "@/components/performance/performance-monitor";
+import { NetworkStatus } from "@/components/network-status";
 import { useState } from "react";
 
 interface HeaderProps {
@@ -81,6 +82,9 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
               <Activity className="h-5 w-5" />
             </Button>
           </div>
+          
+          {/* Network Status */}
+          <NetworkStatus />
           
           {/* Quick Actions */}
           <div className="hidden lg:block">

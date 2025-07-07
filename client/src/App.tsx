@@ -24,6 +24,7 @@ import Layout from "@/components/layout/layout";
 import { RouteHandler } from "@/components/navigation/route-handler";
 import MobileNavigation from "@/components/mobile/mobile-navigation";
 import { ServiceWorkerSetup } from "@/components/pwa/service-worker-setup";
+import { OfflineBanner } from "@/components/network-status";
 
 function Router() {
   return (
@@ -67,6 +68,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <RTLProvider>
         <TooltipProvider>
+          <OfflineBanner />
           <Layout>
             <Router />
           </Layout>
