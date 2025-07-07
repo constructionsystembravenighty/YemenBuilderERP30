@@ -17,6 +17,9 @@ import Documents from "@/pages/documents";
 import Equipment from "@/pages/equipment";
 import Reports from "@/pages/reports";
 import FormsDemo from "@/pages/forms-demo";
+import Analytics from "@/pages/analytics";
+import Workflows from "@/pages/workflows";
+import Audit from "@/pages/audit";
 import Layout from "@/components/layout/layout";
 import { RouteHandler } from "@/components/navigation/route-handler";
 
@@ -48,6 +51,9 @@ function Router() {
         <Route path="/equipment" component={Equipment} />
         <Route path="/reports" component={Reports} />
         <Route path="/forms-demo" component={FormsDemo} />
+        <Route path="/analytics" component={Analytics} />
+        <Route path="/workflows" component={Workflows} />
+        <Route path="/audit" component={Audit} />
         <Route component={NotFound} />
       </Switch>
     </RouteHandler>
