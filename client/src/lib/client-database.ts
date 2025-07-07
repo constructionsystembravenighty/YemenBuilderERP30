@@ -452,18 +452,20 @@ export class ClientDatabase extends Dexie {
 
   // Data seeding for offline mode
   async seedInitialData(): Promise<void> {
-    const existingProjects = await this.projects.count();
-    if (existingProjects > 0) {
-      console.log('Client DB: Data already seeded');
-      return;
-    }
+    try {
+      const existingProjects = await this.projects.count();
+      if (existingProjects > 0) {
+        console.log('Client DB: Data already seeded');
+        return;
+      }
 
-    console.log('Client DB: Seeding comprehensive initial data');
-    const now = new Date().toISOString();
+      console.log('Client DB: Seeding comprehensive initial data');
+      const now = new Date().toISOString();
 
-    // Seed company
-    await this.companies.add({
-      id: 1,
+      // Use put instead of add to handle existing records gracefully
+      // Seed company
+      await this.companies.put({
+        id: 1,
       name: 'Yemen Construction Company',
       nameAr: 'شركة اليمن للإنشاءات',
       type: 'main',
@@ -539,7 +541,7 @@ export class ClientDatabase extends Dexie {
       }
     ];
 
-    await this.users.bulkAdd(users);
+    await this.users.bulkPut(users);
 
     // Seed comprehensive projects
     const projects: ClientProject[] = [
@@ -601,7 +603,7 @@ export class ClientDatabase extends Dexie {
       }
     ];
 
-    await this.projects.bulkAdd(projects);
+    await this.projects.bulkPut(projects);
 
     // Seed detailed transactions
     const transactions: ClientTransaction[] = [
@@ -653,7 +655,7 @@ export class ClientDatabase extends Dexie {
       }
     ];
 
-    await this.transactions.bulkAdd(transactions);
+    await this.transactions.bulkPut(transactions);
 
     // Seed equipment with detailed specifications
     const equipment: ClientEquipment[] = [
@@ -685,7 +687,7 @@ export class ClientDatabase extends Dexie {
       }
     ];
 
-    await this.equipment.bulkAdd(equipment);
+    await this.equipment.bulkPut(equipment);
 
     // Seed warehouses
     const warehouses: ClientWarehouse[] = [
@@ -711,9 +713,15 @@ export class ClientDatabase extends Dexie {
       }
     ];
 
-    await this.warehouses.bulkAdd(warehouses);
+    await this.warehouses.bulkPut(warehouses);
 
     console.log('Client DB: Comprehensive data seeding completed');
+    } catch (error) {
+      console.error('Client DB: Failed to seed initial data:', error);
+      // If seeding fails due to constraint errors, it's likely data already exists
+      // We can continue safely
+      throw error;
+    }
   }
 
   // Import/Export functionality for data portability

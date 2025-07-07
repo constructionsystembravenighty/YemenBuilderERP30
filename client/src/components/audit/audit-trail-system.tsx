@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Shield, User, Calendar, Activity, FileText, Search, Filter, Download, Eye, AlertTriangle } from 'lucide-react';
+import { Shield, User, Calendar, Activity, FileText, Search, Filter, Download, Eye, AlertTriangle, DollarSign } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
