@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Wifi, WifiOff, RefreshCw, Cloud, CloudOff, Database } from 'lucide-react';
-import { networkManager, offlineAPI } from '@/lib/offline-api';
+import { networkManager, offlineAPI } from '@/lib/offline-first-api';
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,

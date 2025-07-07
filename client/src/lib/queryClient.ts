@@ -1,5 +1,5 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
-import { offlineAPI, networkManager } from "./offline-api";
+import { offlineAPI, networkManager } from "./offline-first-api";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {

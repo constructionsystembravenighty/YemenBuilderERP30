@@ -4,6 +4,9 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RTLProvider } from "@/components/ui/rtl-provider";
+import { initializeClientDatabase } from "./lib/client-database";
+import { initializeOfflineAPI } from "./lib/offline-first-api";
+import { useEffect, useState } from "react";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import Projects from "@/pages/projects";
@@ -64,19 +67,69 @@ function Router() {
   );
 }
 
+function OfflineInitializer({ children }: { children: React.ReactNode }) {
+  const [isInitialized, setIsInitialized] = useState(false);
+  const [initError, setInitError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const initializeOfflineSystem = async () => {
+      try {
+        console.log('App: Initializing offline-first construction management system');
+        
+        // Initialize client database with comprehensive data
+        await initializeClientDatabase();
+        console.log('App: Client database initialized');
+        
+        // Initialize offline API system
+        await initializeOfflineAPI();
+        console.log('App: Offline API system initialized');
+        
+        setIsInitialized(true);
+        console.log('App: Offline-first system fully operational');
+      } catch (error) {
+        console.error('App: Failed to initialize offline system:', error);
+        setInitError(error instanceof Error ? error.message : 'Unknown initialization error');
+        setIsInitialized(true); // Still show app, just with error
+      }
+    };
+
+    initializeOfflineSystem();
+  }, []);
+
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center">
+        <div className="text-center text-white">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <h2 className="text-xl font-semibold mb-2">تهيئة منصة إدارة البناء</h2>
+          <p className="text-white/80">جاري تحضير قاعدة البيانات المحلية...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (initError) {
+    console.warn('App: Running with initialization error:', initError);
+  }
+
+  return <>{children}</>;
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <RTLProvider>
         <TooltipProvider>
-          <OfflineBanner />
-          <Layout>
-            <Router />
-          </Layout>
-          <MobileNavigation />
-          <ServiceWorkerSetup />
-          <PWASetup />
-          <Toaster />
+          <OfflineInitializer>
+            <OfflineBanner />
+            <Layout>
+              <Router />
+            </Layout>
+            <MobileNavigation />
+            <ServiceWorkerSetup />
+            <PWASetup />
+            <Toaster />
+          </OfflineInitializer>
         </TooltipProvider>
       </RTLProvider>
     </QueryClientProvider>
