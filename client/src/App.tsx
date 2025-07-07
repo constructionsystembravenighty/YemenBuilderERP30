@@ -25,6 +25,7 @@ import { RouteHandler } from "@/components/navigation/route-handler";
 import MobileNavigation from "@/components/mobile/mobile-navigation";
 import { ServiceWorkerSetup } from "@/components/pwa/service-worker-setup";
 import { OfflineBanner } from "@/components/network-status";
+import { PWASetup } from "@/components/pwa/pwa-setup";
 
 function Router() {
   return (
@@ -74,6 +75,7 @@ function App() {
           </Layout>
           <MobileNavigation />
           <ServiceWorkerSetup />
+          <PWASetup />
           <Toaster />
         </TooltipProvider>
       </RTLProvider>
