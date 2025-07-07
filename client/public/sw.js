@@ -3,9 +3,9 @@
  * Features: Offline-first caching, background sync, push notifications, periodic sync
  */
 
-const CACHE_NAME = 'construction-mgmt-v1.2.0';
-const DYNAMIC_CACHE = 'construction-dynamic-v1.2.0';
-const API_CACHE = 'construction-api-v1.2.0';
+const CACHE_NAME = 'construction-mgmt-v1.3.0';
+const DYNAMIC_CACHE = 'construction-dynamic-v1.3.0';
+const API_CACHE = 'construction-api-v1.3.0';
 
 // Essential files to cache for offline functionality
 const STATIC_ASSETS = [
@@ -16,7 +16,16 @@ const STATIC_ASSETS = [
   '/icon-512.svg',
   '/icon-maskable-192.svg',
   '/icon-maskable-512.svg',
-  // Add critical CSS and JS files here
+  '/favicon.ico'
+];
+
+// Additional assets to discover and cache dynamically
+const ASSET_PATTERNS = [
+  /\/assets\/.*\.js$/,
+  /\/assets\/.*\.css$/,
+  /@vite\/client$/,
+  /\/src\/.*$/,
+  /\/node_modules\/.*$/
 ];
 
 // API endpoints to cache
@@ -40,7 +49,7 @@ self.addEventListener('install', (event) => {
         const cache = await caches.open(CACHE_NAME);
         console.log('SW: Caching essential assets');
         
-        // Cache static assets with network fallback
+        // Cache essential static assets
         const cachePromises = STATIC_ASSETS.map(async (url) => {
           try {
             await cache.add(url);
@@ -51,6 +60,50 @@ self.addEventListener('install', (event) => {
         });
         
         await Promise.allSettled(cachePromises);
+        
+        // Pre-cache the main HTML page which will trigger loading of JS/CSS bundles
+        try {
+          const response = await fetch('/');
+          const html = await response.text();
+          
+          // Extract asset URLs from the HTML
+          const assetUrls = [];
+          const scriptMatches = html.match(/<script[^>]+src="([^"]+)"/g);
+          const linkMatches = html.match(/<link[^>]+href="([^"]+)"/g);
+          
+          if (scriptMatches) {
+            scriptMatches.forEach(match => {
+              const src = match.match(/src="([^"]+)"/)[1];
+              if (src && !src.startsWith('http')) {
+                assetUrls.push(src);
+              }
+            });
+          }
+          
+          if (linkMatches) {
+            linkMatches.forEach(match => {
+              const href = match.match(/href="([^"]+)"/)[1];
+              if (href && !href.startsWith('http') && (href.includes('.css') || href.includes('.js'))) {
+                assetUrls.push(href);
+              }
+            });
+          }
+          
+          // Cache discovered assets
+          const assetCachePromises = assetUrls.map(async (url) => {
+            try {
+              await cache.add(url);
+              console.log(`SW: Cached asset ${url}`);
+            } catch (error) {
+              console.warn(`SW: Failed to cache asset ${url}:`, error);
+            }
+          });
+          
+          await Promise.allSettled(assetCachePromises);
+          
+        } catch (error) {
+          console.warn('SW: Failed to discover and cache assets:', error);
+        }
         
         // Skip waiting to activate immediately
         self.skipWaiting();
@@ -103,6 +156,25 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
+  // Special handling for Vite development server
+  if (url.pathname.startsWith('/@vite/') || url.pathname.startsWith('/src/')) {
+    event.respondWith(
+      (async () => {
+        try {
+          const networkResponse = await fetch(request);
+          return networkResponse;
+        } catch (error) {
+          // In development mode, return empty response for Vite assets
+          return new Response('// Development asset offline', {
+            status: 503,
+            headers: { 'Content-Type': 'application/javascript' }
+          });
+        }
+      })()
+    );
+    return;
+  }
+
   event.respondWith(
     (async () => {
       try {
@@ -250,9 +322,17 @@ function createOfflineApiResponse(request) {
   
   // Return appropriate offline response based on endpoint
   if (url.pathname.includes('/projects')) {
-    return new Response(JSON.stringify([]), {
+    // Signal to client that data should come from IndexedDB
+    return new Response(JSON.stringify({
+      data: [],
+      offline: true,
+      message: 'استخدم البيانات المحلية'
+    }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Offline-Mode': 'true'
+      }
     });
   }
   
@@ -263,19 +343,43 @@ function createOfflineApiResponse(request) {
       activeProjects: 0,
       totalEmployees: 0,
       equipmentCount: 0,
-      message: 'البيانات محفوظة محلياً'
+      offline: true,
+      message: 'البيانات محفوظة محلياً - استخدم البيانات المحلية'
     }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Offline-Mode': 'true'
+      }
+    });
+  }
+  
+  if (url.pathname.includes('/users') || url.pathname.includes('/equipment') || 
+      url.pathname.includes('/transactions') || url.pathname.includes('/warehouses') ||
+      url.pathname.includes('/companies')) {
+    return new Response(JSON.stringify({
+      data: [],
+      offline: true,
+      message: 'استخدم البيانات المحلية'
+    }), {
+      status: 200,
+      headers: { 
+        'Content-Type': 'application/json',
+        'X-Offline-Mode': 'true'
+      }
     });
   }
   
   return new Response(JSON.stringify({ 
     error: 'Offline mode',
+    offline: true,
     message: 'البيانات غير متوفرة في وضع عدم الاتصال'
   }), {
-    status: 503,
-    headers: { 'Content-Type': 'application/json' }
+    status: 200,
+    headers: { 
+      'Content-Type': 'application/json',
+      'X-Offline-Mode': 'true'
+    }
   });
 }
 
@@ -300,6 +404,10 @@ async function handleOfflineError(request) {
 function isStaticAsset(request) {
   const url = new URL(request.url);
   return url.pathname.match(/\.(js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot|ico)$/) ||
+         url.pathname.startsWith('/assets/') ||
+         url.pathname.startsWith('/src/') ||
+         url.pathname.startsWith('/@vite/') ||
+         url.pathname.startsWith('/node_modules/') ||
          STATIC_ASSETS.includes(url.pathname);
 }
 
