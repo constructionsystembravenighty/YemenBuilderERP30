@@ -22,6 +22,8 @@ import Workflows from "@/pages/workflows";
 import Audit from "@/pages/audit";
 import Layout from "@/components/layout/layout";
 import { RouteHandler } from "@/components/navigation/route-handler";
+import MobileNavigation from "@/components/mobile/mobile-navigation";
+import { ServiceWorkerSetup } from "@/components/pwa/service-worker-setup";
 
 function Router() {
   return (
@@ -68,6 +70,8 @@ function App() {
           <Layout>
             <Router />
           </Layout>
+          <MobileNavigation />
+          <ServiceWorkerSetup />
           <Toaster />
         </TooltipProvider>
       </RTLProvider>
