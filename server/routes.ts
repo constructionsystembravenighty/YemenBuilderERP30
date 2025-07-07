@@ -63,10 +63,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Users routes
   app.get("/api/users", async (req, res) => {
     try {
-      const companyId = parseInt(req.query.companyId as string);
-      if (!companyId) {
-        return res.status(400).json({ message: "Company ID is required" });
-      }
+      const companyId = parseInt(req.query.companyId as string) || 1; // Default to company 1
       const users = await storage.getUsersByCompany(companyId);
       res.json(users);
     } catch (error) {
@@ -119,10 +116,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Projects routes
   app.get("/api/projects", async (req, res) => {
     try {
-      const companyId = parseInt(req.query.companyId as string);
-      if (!companyId) {
-        return res.status(400).json({ message: "Company ID is required" });
-      }
+      const companyId = parseInt(req.query.companyId as string) || 1; // Default to company 1
       const projects = await storage.getProjectsByCompany(companyId);
       res.json(projects);
     } catch (error) {
@@ -175,12 +169,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Transactions routes
   app.get("/api/transactions", async (req, res) => {
     try {
-      const companyId = parseInt(req.query.companyId as string);
+      const companyId = parseInt(req.query.companyId as string) || 1; // Default to company 1
       const projectId = req.query.projectId ? parseInt(req.query.projectId as string) : undefined;
-      
-      if (!companyId) {
-        return res.status(400).json({ message: "Company ID is required" });
-      }
 
       let transactions;
       if (projectId) {
@@ -208,10 +198,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Equipment routes
   app.get("/api/equipment", async (req, res) => {
     try {
-      const companyId = parseInt(req.query.companyId as string);
-      if (!companyId) {
-        return res.status(400).json({ message: "Company ID is required" });
-      }
+      const companyId = parseInt(req.query.companyId as string) || 1; // Default to company 1
       const equipment = await storage.getEquipmentByCompany(companyId);
       res.json(equipment);
     } catch (error) {
@@ -232,10 +219,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Warehouses routes
   app.get("/api/warehouses", async (req, res) => {
     try {
-      const companyId = parseInt(req.query.companyId as string);
-      if (!companyId) {
-        return res.status(400).json({ message: "Company ID is required" });
-      }
+      const companyId = parseInt(req.query.companyId as string) || 1; // Default to company 1
       const warehouses = await storage.getWarehousesByCompany(companyId);
       res.json(warehouses);
     } catch (error) {
@@ -256,12 +240,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Documents routes
   app.get("/api/documents", async (req, res) => {
     try {
-      const companyId = parseInt(req.query.companyId as string);
+      const companyId = parseInt(req.query.companyId as string) || 1; // Default to company 1
       const projectId = req.query.projectId ? parseInt(req.query.projectId as string) : undefined;
-      
-      if (!companyId) {
-        return res.status(400).json({ message: "Company ID is required" });
-      }
 
       let documents;
       if (projectId) {
