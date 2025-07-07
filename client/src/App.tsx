@@ -8,7 +8,7 @@ import { initializeClientDatabase } from "./lib/client-database";
 import { initializeOfflineAPI } from "./lib/offline-first-api";
 import { syncEngine } from "./lib/sync-engine";
 import { VersionManager } from "./lib/version-manager";
-import { mobileAppManager } from "../mobile/mobile-app-manager";
+
 import { useEffect, useState } from "react";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
@@ -132,8 +132,7 @@ function OfflineInitializer({ children }: { children: React.ReactNode }) {
         
         // Initialize mobile app manager for native capabilities
         if (typeof window !== 'undefined' && window.Capacitor) {
-          await mobileAppManager.initialize();
-          console.log('App: Mobile app manager initialized');
+          console.log('App: Mobile capabilities detected but manager not loaded');
         }
         
         setIsInitialized(true);
