@@ -154,22 +154,22 @@ export default function Projects() {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-primary mb-2">إدارة المشاريع</h1>
-          <p className="text-gray-600">إدارة وتتبع جميع مشاريع الشركة</p>
+    <div className="mobile-container space-y-4 md:space-y-6 animate-fade-in">
+      {/* Mobile-Optimized Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0 flex-1">
+          <h1 className="mobile-title text-primary truncate">مشاريع</h1>
+          <p className="mobile-text text-gray-600 hidden sm:block">إدارة وتتبع جميع مشاريع الشركة</p>
         </div>
         
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-accent hover:bg-accent/90 text-white">
+            <Button className="bg-accent hover:bg-accent/90 text-white w-full sm:w-auto">
               <Plus className="h-4 w-4 ml-2" />
               مشروع جديد
             </Button>
           </DialogTrigger>
-          <DialogContent className="glass-card max-w-2xl">
+          <DialogContent className="glass-card max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>إنشاء مشروع جديد</DialogTitle>
             </DialogHeader>
@@ -184,20 +184,20 @@ export default function Projects() {
         </Dialog>
       </div>
 
-      {/* Filters */}
-      <GlassmorphicCard className="p-4">
-        <div className="flex flex-col md:flex-row gap-4">
+      {/* Mobile-Optimized Filters */}
+      <GlassmorphicCard className="mobile-padding">
+        <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-4">
           <div className="flex-1 relative">
             <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="البحث في المشاريع..."
+              placeholder="بحث في المشاريع..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="glass-input pr-10"
+              className="glass-input pr-10 text-right"
             />
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex gap-2 overflow-x-auto pb-1">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="glass-input w-40">
                 <SelectValue placeholder="تصفية الحالة" />
@@ -219,105 +219,105 @@ export default function Projects() {
         </div>
       </GlassmorphicCard>
 
-      {/* Projects Grid */}
-      <div className="grid gap-6">
+      {/* Mobile-Optimized Projects Display */}
+      <div className="space-y-4">
         {filteredProjects?.length === 0 ? (
-          <GlassmorphicCard className="p-12 text-center">
-            <div className="text-gray-500">
-              <FolderOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p className="text-lg font-medium mb-2">لا توجد مشاريع</p>
-              <p className="text-sm">لم يتم العثور على مشاريع تطابق معايير البحث</p>
+          <GlassmorphicCard className="mobile-padding text-center">
+            <div className="text-gray-500 py-8">
+              <FolderOpen className="h-16 w-16 mx-auto mb-4 opacity-50" />
+              <p className="mobile-title mb-2">لا توجد مشاريع</p>
+              <p className="mobile-text">لم يتم العثور على مشاريع تطابق معايير البحث</p>
             </div>
           </GlassmorphicCard>
         ) : (
           filteredProjects?.map((project: any) => (
-            <GlassmorphicCard key={project.id} floating hover className="p-6">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                {/* Project Info */}
-                <div className="flex-1">
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <h3 className="text-xl font-semibold text-charcoal-text mb-1">
-                        {project.nameAr || project.name}
-                      </h3>
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
+            <GlassmorphicCard key={project.id} floating hover className="mobile-card">
+              <div className="space-y-4">
+                {/* Mobile Project Header */}
+                <div className="flex items-start justify-between">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="mobile-title text-charcoal-text truncate mb-1">
+                      {project.nameAr || project.name}
+                    </h3>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mobile-text text-gray-500">
+                      {(project.locationAr || project.location) && (
                         <div className="flex items-center gap-1">
-                          <MapPin className="h-4 w-4" />
-                          <span>{project.locationAr || project.location}</span>
+                          <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span className="truncate">{project.locationAr || project.location}</span>
                         </div>
-                        {project.startDate && (
-                          <div className="flex items-center gap-1">
-                            <Calendar className="h-4 w-4" />
-                            <span>{new Date(project.startDate).toLocaleDateString('ar')}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      {getStatusBadge(project.status)}
-                      {getPriorityBadge(project.priority)}
+                      )}
+                      {project.startDate && (
+                        <div className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <span>{new Date(project.startDate).toLocaleDateString('ar')}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
-                  {project.descriptionAr || project.description ? (
-                    <p className="text-gray-600 mb-4 line-clamp-2">
-                      {project.descriptionAr || project.description}
-                    </p>
-                  ) : null}
-                  
-                  {/* Progress */}
-                  <div className="mb-4">
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="text-gray-500">التقدم</span>
-                      <span className="font-medium">{project.progress}%</span>
-                    </div>
-                    <Progress value={project.progress} className="progress-gradient" />
+                  <div className="flex flex-col sm:flex-row gap-2 ml-2">
+                    {getStatusBadge(project.status)}
+                    {getPriorityBadge(project.priority)}
                   </div>
                 </div>
                 
-                {/* Project Stats */}
-                <div className="lg:w-80">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="glass-card p-3 rounded-lg">
-                      <div className="flex items-center gap-2 mb-1">
-                        <DollarSign className="h-4 w-4 text-primary" />
-                        <span className="text-xs text-gray-500">الميزانية</span>
-                      </div>
-                      <p className="font-semibold text-primary">
-                        {formatCurrency(project.budget || 0)}
-                      </p>
+                {/* Project Description */}
+                {(project.descriptionAr || project.description) && (
+                  <p className="mobile-text text-gray-600 line-clamp-2">
+                    {project.descriptionAr || project.description}
+                  </p>
+                )}
+                
+                {/* Progress Bar */}
+                <div>
+                  <div className="flex justify-between mobile-text mb-2">
+                    <span className="text-gray-500">التقدم</span>
+                    <span className="font-medium">{project.progress}%</span>
+                  </div>
+                  <Progress value={project.progress} className="progress-gradient h-2" />
+                </div>
+                
+                {/* Mobile Project Stats Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="glass-card p-3 rounded-lg">
+                    <div className="flex items-center gap-1 mb-1">
+                      <DollarSign className="h-3 w-3 text-primary" />
+                      <span className="text-xs text-gray-500">الميزانية</span>
                     </div>
-                    
-                    <div className="glass-card p-3 rounded-lg">
-                      <div className="flex items-center gap-2 mb-1">
-                        <DollarSign className="h-4 w-4 text-red-500" />
-                        <span className="text-xs text-gray-500">المنفق</span>
-                      </div>
-                      <p className="font-semibold text-red-500">
-                        {formatCurrency(project.spent || 0)}
-                      </p>
+                    <p className="text-sm font-semibold text-primary truncate">
+                      {formatCurrency(project.budget || 0)}
+                    </p>
+                  </div>
+                  
+                  <div className="glass-card p-3 rounded-lg">
+                    <div className="flex items-center gap-1 mb-1">
+                      <DollarSign className="h-3 w-3 text-red-500" />
+                      <span className="text-xs text-gray-500">المنفق</span>
                     </div>
-                    
-                    <div className="glass-card p-3 rounded-lg">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Users className="h-4 w-4 text-accent" />
-                        <span className="text-xs text-gray-500">الفريق</span>
-                      </div>
-                      <p className="font-semibold text-accent">12 عضو</p>
+                    <p className="text-sm font-semibold text-red-500 truncate">
+                      {formatCurrency(project.spent || 0)}
+                    </p>
+                  </div>
+                  
+                  <div className="glass-card p-3 rounded-lg">
+                    <div className="flex items-center gap-1 mb-1">
+                      <Users className="h-3 w-3 text-accent" />
+                      <span className="text-xs text-gray-500">الفريق</span>
                     </div>
-                    
-                    <div className="glass-card p-3 rounded-lg">
-                      <div className="flex items-center gap-2 mb-1">
-                        <Calendar className="h-4 w-4 text-secondary" />
-                        <span className="text-xs text-gray-500">المتبقي</span>
-                      </div>
-                      <p className="font-semibold text-secondary">
-                        {project.endDate ? 
-                          Math.max(0, Math.ceil((new Date(project.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
-                          : '--'
-                        } يوم
-                      </p>
+                    <p className="text-sm font-semibold text-accent">12 عضو</p>
+                  </div>
+                  
+                  <div className="glass-card p-3 rounded-lg">
+                    <div className="flex items-center gap-1 mb-1">
+                      <Calendar className="h-3 w-3 text-secondary" />
+                      <span className="text-xs text-gray-500">المتبقي</span>
                     </div>
+                    <p className="text-sm font-semibold text-secondary truncate">
+                      {project.endDate ? 
+                        Math.max(0, Math.ceil((new Date(project.endDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+                        : '--'
+                      } يوم
+                    </p>
                   </div>
                 </div>
               </div>
@@ -326,37 +326,37 @@ export default function Projects() {
         )}
       </div>
 
-      {/* Stats Summary */}
+      {/* Mobile-Optimized Stats Summary */}
       {filteredProjects?.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <GlassmorphicCard className="p-4 text-center">
-            <div className="text-2xl font-bold text-primary mb-1">
+        <div className="mobile-grid">
+          <GlassmorphicCard className="mobile-padding text-center">
+            <div className="text-xl sm:text-2xl font-bold text-primary mb-1">
               {filteredProjects?.length || 0}
             </div>
-            <div className="text-sm text-gray-500">إجمالي المشاريع</div>
+            <div className="mobile-text text-gray-500">إجمالي المشاريع</div>
           </GlassmorphicCard>
           
-          <GlassmorphicCard className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-600 mb-1">
+          <GlassmorphicCard className="mobile-padding text-center">
+            <div className="text-xl sm:text-2xl font-bold text-green-600 mb-1">
               {filteredProjects?.filter((p: any) => p.status === 'active').length || 0}
             </div>
-            <div className="text-sm text-gray-500">المشاريع النشطة</div>
+            <div className="mobile-text text-gray-500">المشاريع النشطة</div>
           </GlassmorphicCard>
           
-          <GlassmorphicCard className="p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600 mb-1">
+          <GlassmorphicCard className="mobile-padding text-center">
+            <div className="text-xl sm:text-2xl font-bold text-blue-600 mb-1">
               {filteredProjects?.filter((p: any) => p.status === 'completed').length || 0}
             </div>
-            <div className="text-sm text-gray-500">المشاريع المكتملة</div>
+            <div className="mobile-text text-gray-500">المشاريع المكتملة</div>
           </GlassmorphicCard>
           
-          <GlassmorphicCard className="p-4 text-center">
-            <div className="text-2xl font-bold text-secondary mb-1">
+          <GlassmorphicCard className="mobile-padding text-center">
+            <div className="text-xl sm:text-2xl font-bold text-secondary mb-1 truncate">
               {formatCurrency(
                 filteredProjects?.reduce((sum: number, p: any) => sum + (p.budget || 0), 0) || 0
               )}
             </div>
-            <div className="text-sm text-gray-500">إجمالي الميزانيات</div>
+            <div className="mobile-text text-gray-500">إجمالي الميزانيات</div>
           </GlassmorphicCard>
         </div>
       )}

@@ -115,34 +115,34 @@ export default function MobileNavigation() {
   return (
     <>
       {/* Mobile Header */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-white/20">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center space-x-3 space-x-reverse">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary to-primary/90 backdrop-blur-xl border-b border-white/10 shadow-lg">
+        <div className="flex items-center justify-between p-3">
+          <div className="flex items-center space-x-2 space-x-reverse min-w-0 flex-1">
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="sm" className="p-2">
+                <Button variant="ghost" size="sm" className="p-2 text-white hover:bg-white/10">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-80 p-0">
+              <SheetContent side="right" className="w-80 p-0 border-l border-white/10">
                 <MobileNavigationContent onClose={() => setIsOpen(false)} />
               </SheetContent>
             </Sheet>
             
-            <div>
-              <h1 className="font-bold text-lg text-primary">منصة البناء</h1>
-              <p className="text-xs text-gray-600">إدارة المشاريع الإنشائية</p>
+            <div className="min-w-0 flex-1">
+              <h1 className="font-bold text-base text-white truncate">منصة البناء</h1>
+              <p className="text-xs text-white/80 hidden sm:block">إدارة المشاريع الإنشائية</p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-2 space-x-reverse">
-            <Button variant="ghost" size="sm" className="p-2">
-              <Search className="h-5 w-5" />
+          <div className="flex items-center space-x-1 space-x-reverse">
+            <Button variant="ghost" size="sm" className="p-2 text-white hover:bg-white/10">
+              <Search className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="sm" className="p-2 relative">
-              <Bell className="h-5 w-5" />
-              <Badge className="absolute -top-1 -right-1 h-4 w-4 text-xs p-0 flex items-center justify-center bg-red-500">
-                3
+            <Button variant="ghost" size="sm" className="p-2 relative text-white hover:bg-white/10">
+              <Bell className="h-4 w-4" />
+              <Badge className="absolute -top-1 -right-1 h-3 w-3 text-xs p-0 flex items-center justify-center bg-red-500 border border-white">
+                <span className="sr-only">3</span>
               </Badge>
             </Button>
           </div>
@@ -150,27 +150,27 @@ export default function MobileNavigation() {
       </div>
 
       {/* Bottom Navigation for Mobile */}
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-xl border-t border-white/20">
-        <div className="grid grid-cols-4 gap-1 p-2">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-gray-200 shadow-lg safe-area-pb">
+        <div className="grid grid-cols-4 gap-0 px-1 py-2">
           {navigationItems.slice(0, 4).map((item) => (
             <Link key={item.href} href={item.href}>
               <div
                 className={cn(
-                  "flex flex-col items-center p-3 rounded-lg transition-all duration-200",
+                  "flex flex-col items-center p-2 sm:p-3 rounded-lg transition-all duration-200 touch-manipulation",
                   isActive(item.href)
-                    ? "bg-primary/10 text-primary"
-                    : "text-gray-600 hover:bg-gray-50"
+                    ? "bg-primary/10 text-primary scale-105"
+                    : "text-gray-600 hover:bg-gray-50 active:bg-gray-100"
                 )}
               >
                 <div className="relative">
-                  <item.icon className="h-5 w-5 mb-1" />
+                  <item.icon className="h-4 w-4 sm:h-5 sm:w-5 mb-1" />
                   {item.badge && (
-                    <Badge className="absolute -top-2 -right-2 h-4 w-4 text-xs p-0 flex items-center justify-center">
-                      {item.badge}
+                    <Badge className="absolute -top-1 -right-1 h-3 w-3 sm:h-4 sm:w-4 text-xs p-0 flex items-center justify-center bg-primary text-white">
+                      <span className="text-xs">{item.badge}</span>
                     </Badge>
                   )}
                 </div>
-                <span className="text-xs font-medium">{item.label}</span>
+                <span className="text-xs font-medium truncate max-w-full">{item.label}</span>
               </div>
             </Link>
           ))}
