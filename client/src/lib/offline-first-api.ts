@@ -232,7 +232,11 @@ export class OfflineFirstAPI {
     return this.request(
       `/transactions?companyId=${companyId}`,
       { method: 'GET' },
-      () => clientDB.transactions.where('companyId').equals(companyId).orderBy('transactionDate').reverse().toArray()
+      () => clientDB.transactions
+        .orderBy('transactionDate')
+        .reverse()
+        .filter(transaction => transaction.companyId === companyId)
+        .toArray()
     );
   }
 
@@ -292,7 +296,10 @@ export class OfflineFirstAPI {
     return this.request(
       `/users?companyId=${companyId}`,
       { method: 'GET' },
-      () => clientDB.users.where('companyId').equals(companyId).orderBy('name').toArray()
+      () => clientDB.users
+        .orderBy('name')
+        .filter(user => user.companyId === companyId)
+        .toArray()
     );
   }
 
@@ -352,7 +359,10 @@ export class OfflineFirstAPI {
     return this.request(
       `/equipment?companyId=${companyId}`,
       { method: 'GET' },
-      () => clientDB.equipment.where('companyId').equals(companyId).orderBy('name').toArray()
+      () => clientDB.equipment
+        .orderBy('name')
+        .filter(equipment => equipment.companyId === companyId)
+        .toArray()
     );
   }
 
@@ -412,7 +422,10 @@ export class OfflineFirstAPI {
     return this.request(
       `/warehouses?companyId=${companyId}`,
       { method: 'GET' },
-      () => clientDB.warehouses.where('companyId').equals(companyId).orderBy('name').toArray()
+      () => clientDB.warehouses
+        .orderBy('name')
+        .filter(warehouse => warehouse.companyId === companyId)
+        .toArray()
     );
   }
 

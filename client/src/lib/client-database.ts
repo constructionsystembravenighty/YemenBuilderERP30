@@ -288,32 +288,35 @@ export class ClientDatabase extends Dexie {
   // Advanced query methods
   async getProjectsByStatus(companyId: number, status: string): Promise<ClientProject[]> {
     return await this.projects
-      .where({ companyId, status })
       .orderBy('lastModified')
       .reverse()
+      .filter(project => project.companyId === companyId && project.status === status)
       .toArray();
   }
 
   async getTransactionsByDateRange(companyId: number, startDate: string, endDate: string): Promise<ClientTransaction[]> {
     return await this.transactions
-      .where('companyId').equals(companyId)
-      .and(transaction => transaction.transactionDate >= startDate && transaction.transactionDate <= endDate)
       .orderBy('transactionDate')
       .reverse()
+      .filter(transaction => 
+        transaction.companyId === companyId &&
+        transaction.transactionDate >= startDate && 
+        transaction.transactionDate <= endDate
+      )
       .toArray();
   }
 
   async getUsersByRole(companyId: number, role: string): Promise<ClientUser[]> {
     return await this.users
-      .where({ companyId, role, isActive: true })
       .orderBy('name')
+      .filter(user => user.companyId === companyId && user.role === role && user.isActive === true)
       .toArray();
   }
 
   async getEquipmentByStatus(companyId: number, status: string): Promise<ClientEquipment[]> {
     return await this.equipment
-      .where({ companyId, status })
       .orderBy('name')
+      .filter(equipment => equipment.companyId === companyId && equipment.status === status)
       .toArray();
   }
 
@@ -433,8 +436,8 @@ export class ClientDatabase extends Dexie {
 
   async getPendingActions(): Promise<OfflineAction[]> {
     return await this.offlineActions
-      .where('status').equals('pending')
       .orderBy('timestamp')
+      .filter(action => action.status === 'pending')
       .toArray();
   }
 
