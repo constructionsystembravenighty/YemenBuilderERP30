@@ -14,6 +14,7 @@ import {
   BarChart, 
   Bar, 
   PieChart as RechartsPieChart,
+  Pie,
   Cell,
   XAxis, 
   YAxis, 
