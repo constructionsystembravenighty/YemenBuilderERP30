@@ -11,17 +11,10 @@ import {
   Users,
   Warehouse,
 } from "lucide-react";
+import { AdvancedNavigation } from "@/components/navigation/advanced-nav";
+import { Breadcrumb } from "@/components/navigation/breadcrumb";
 
-const menuItems = [
-  { path: "/dashboard", icon: ChartLine, label: "لوحة التحكم" },
-  { path: "/projects", icon: FolderOpen, label: "إدارة المشاريع" },
-  { path: "/financial", icon: Calculator, label: "الإدارة المالية" },
-  { path: "/employees", icon: Users, label: "إدارة الموظفين" },
-  { path: "/warehouse", icon: Warehouse, label: "إدارة المخازن" },
-  { path: "/equipment", icon: Cog, label: "إدارة المعدات" },
-  { path: "/documents", icon: FileText, label: "إدارة الوثائق" },
-  { path: "/reports", icon: BarChart3, label: "التقارير والتحليلات" },
-];
+// Remove unused menuItems since we're using AdvancedNavigation now
 
 interface MobileNavProps {
   isOpen: boolean;
@@ -54,23 +47,13 @@ export default function MobileNav({ isOpen, onClose }: MobileNavProps) {
             </Button>
           </div>
           
-          {/* Mobile Menu Items */}
-          <div className="space-y-4">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              return (
-                <Link key={item.path} href={item.path}>
-                  <div 
-                    className="flex items-center space-x-reverse space-x-3 p-3 rounded-lg hover-glass transition-all duration-200 cursor-pointer"
-                    onClick={onClose}
-                  >
-                    <Icon className="h-5 w-5 text-primary" />
-                    <span className="text-charcoal-text font-medium">{item.label}</span>
-                  </div>
-                </Link>
-              );
-            })}
+          {/* Breadcrumb Navigation */}
+          <div className="mb-6">
+            <Breadcrumb className="text-sm" />
           </div>
+          
+          {/* Advanced Navigation Menu */}
+          <AdvancedNavigation onNavigate={() => onClose()} />
         </div>
       </nav>
     </>

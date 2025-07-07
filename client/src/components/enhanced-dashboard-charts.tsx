@@ -22,23 +22,44 @@ interface DashboardChartsProps {
 
 export function EnhancedDashboardCharts({ companyId }: DashboardChartsProps) {
   // Fetch financial trends for charts
-  const { data: financialTrends } = useQuery({
-    queryKey: ['/api/ai/financial-trends', companyId],
-    queryFn: () => fetch(`/api/ai/financial-trends?companyId=${companyId}`).then(res => res.json()),
+  const { data: financialTrends, error: trendsError } = useQuery({
+    queryKey: ['/api/intelligence/financial-trends', companyId],
+    queryFn: async () => {
+      const response = await fetch(`/api/intelligence/financial-trends?companyId=${companyId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch financial trends');
+      }
+      return response.json();
+    },
+    enabled: !!companyId,
     refetchInterval: 300000, // Refresh every 5 minutes
   });
 
   // Fetch dashboard stats
-  const { data: stats } = useQuery({
+  const { data: stats, error: statsError } = useQuery({
     queryKey: ['/api/dashboard/stats', companyId],
-    queryFn: () => fetch(`/api/dashboard/stats?companyId=${companyId}`).then(res => res.json()),
+    queryFn: async () => {
+      const response = await fetch(`/api/dashboard/stats?companyId=${companyId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch stats');
+      }
+      return response.json();
+    },
+    enabled: !!companyId,
     refetchInterval: 60000, // Refresh every minute
   });
 
   // Fetch projects for project status chart
-  const { data: projects } = useQuery({
+  const { data: projects, error: projectsError } = useQuery({
     queryKey: ['/api/projects', companyId],
-    queryFn: () => fetch(`/api/projects?companyId=${companyId}`).then(res => res.json()),
+    queryFn: async () => {
+      const response = await fetch(`/api/projects?companyId=${companyId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch projects');
+      }
+      return response.json();
+    },
+    enabled: !!companyId
   });
 
   // Prepare chart data
@@ -50,11 +71,11 @@ export function EnhancedDashboardCharts({ companyId }: DashboardChartsProps) {
     profit: trend.income - trend.expenses
   })) || [];
 
-  const projectStatusData = projects?.reduce((acc: any, project: any) => {
+  const projectStatusData = Array.isArray(projects) ? projects.reduce((acc: any, project: any) => {
     const status = project.status;
     acc[status] = (acc[status] || 0) + 1;
     return acc;
-  }, {});
+  }, {}) : {};
 
   const statusChartData = Object.entries(projectStatusData || {}).map(([status, count]) => ({
     name: status,

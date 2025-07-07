@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header from "./header";
 import Sidebar from "./sidebar";
 import MobileNav from "./mobile-nav";
+import { FloatingActionButton } from "@/components/navigation/quick-actions";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -25,6 +26,9 @@ export default function Layout({ children }: LayoutProps) {
           {children}
         </main>
       </div>
+      
+      {/* Floating Action Button for Mobile */}
+      <FloatingActionButton />
     </div>
   );
 }

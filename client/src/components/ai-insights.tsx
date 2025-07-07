@@ -73,8 +73,12 @@ export function AIInsights({ projectId, companyId }: AIInsightsProps) {
     queryKey: ['/api/intelligence/financial-trends', companyId],
     queryFn: async () => {
       const response = await fetch(`/api/intelligence/financial-trends?companyId=${companyId}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch financial trends');
+      }
       return response.json();
-    }
+    },
+    enabled: !!companyId
   });
 
   // Cost estimation mutation
@@ -250,7 +254,7 @@ export function AIInsights({ projectId, companyId }: AIInsightsProps) {
                         التوصيات
                       </h4>
                       <ul className="text-sm space-y-1">
-                        {projectInsights.recommendations.map((rec, idx) => (
+                        {projectInsights?.recommendations?.map((rec, idx) => (
                           <li key={idx} className="flex items-start gap-2">
                             <CheckCircle className="h-3 w-3 mt-0.5 text-green-600 flex-shrink-0" />
                             {rec}
@@ -277,7 +281,7 @@ export function AIInsights({ projectId, companyId }: AIInsightsProps) {
                 </div>
               ) : financialTrends ? (
                 <div className="space-y-3">
-                  {financialTrends.insights.map((insight: string, idx: number) => (
+                  {financialTrends?.insights?.map((insight: string, idx: number) => (
                     <div key={idx} className="flex items-start gap-2 p-3 bg-blue-50 rounded-lg">
                       <AlertTriangle className="h-4 w-4 mt-0.5 text-blue-600 flex-shrink-0" />
                       <span className="text-sm">{insight}</span>
@@ -334,7 +338,7 @@ export function AIInsights({ projectId, companyId }: AIInsightsProps) {
                 <div>
                   <span className="text-sm font-medium">العوامل المؤثرة:</span>
                   <ul className="text-sm mt-1 space-y-1">
-                    {costEstimateMutation.data.factors.map((factor: string, idx: number) => (
+                    {costEstimateMutation.data?.factors?.map((factor: string, idx: number) => (
                       <li key={idx} className="flex items-center gap-2">
                         <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
                         {factor}

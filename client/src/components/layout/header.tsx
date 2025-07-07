@@ -1,8 +1,10 @@
-import { Bell, Building, Menu, User } from "lucide-react";
+import { Bell, Building, Menu, User, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { HelpSystem } from "@/components/help/help-system";
+import { Input } from "@/components/ui/input";
+import { QuickActions } from "@/components/navigation/quick-actions";
 
 interface HeaderProps {
   onMobileMenuToggle: () => void;
@@ -47,8 +49,23 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
           </div>
         </div>
         
-        {/* User Menu */}
+        {/* Search and Actions */}
         <div className="flex items-center space-x-reverse space-x-4">
+          {/* Global Search */}
+          <div className="relative hidden md:block">
+            <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="البحث..."
+              className="w-64 pr-10 bg-white bg-opacity-20 border-white border-opacity-30 text-white placeholder-gray-300"
+            />
+          </div>
+          
+          {/* Quick Actions */}
+          <div className="hidden lg:block">
+            <QuickActions />
+          </div>
+          
           {/* Notifications */}
           <div className="relative">
             <Button
