@@ -63,8 +63,19 @@ interface DataTableProps<TData, TValue> {
   searchKey?: string;
   onRowClick?: (row: TData) => void;
   onAdd?: () => void;
-  onExport?: () => void;
+  onEdit?: (row: TData) => void;
+  onDelete?: (row: TData) => void;
+  onExport?: (format: 'csv' | 'excel' | 'pdf') => void;
   filterableColumns?: string[];
+  enableRowSelection?: boolean;
+  enableBulkActions?: boolean;
+  loading?: boolean;
+  pageSize?: number;
+  showPagination?: boolean;
+  showColumnToggle?: boolean;
+  showSearch?: boolean;
+  searchPlaceholder?: string;
+  searchPlaceholderAr?: string;
 }
 
 export function AdvancedDataTable<TData, TValue>({
@@ -75,8 +86,19 @@ export function AdvancedDataTable<TData, TValue>({
   searchKey = "name",
   onRowClick,
   onAdd,
+  onEdit,
+  onDelete,
   onExport,
-  filterableColumns = []
+  filterableColumns = [],
+  enableRowSelection = false,
+  enableBulkActions = false,
+  loading = false,
+  pageSize = 10,
+  showPagination = true,
+  showColumnToggle = true,
+  showSearch = true,
+  searchPlaceholder = "Search...",
+  searchPlaceholderAr = "البحث...",
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

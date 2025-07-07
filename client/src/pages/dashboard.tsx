@@ -36,6 +36,7 @@ import {
 } from "@/components/charts/dashboard-charts";
 import { AIInsights } from "@/components/ai-insights";
 import { EnhancedDashboardCharts } from "@/components/enhanced-dashboard-charts";
+import { AdvancedDashboardAnalytics } from "@/components/advanced-dashboard-analytics";
 
 interface DashboardStats {
   totalRevenue: number;
@@ -528,10 +529,10 @@ export default function Dashboard() {
         </GlassmorphicCard>
       </div>
 
-      {/* AI-Powered Dashboard Enhancements */}
+      {/* Advanced Dashboard Analytics */}
       <div className="space-y-6">
-        {/* Enhanced Analytics Charts */}
-        <EnhancedDashboardCharts companyId={1} />
+        {/* Enhanced Analytics with Professional Charts */}
+        <AdvancedDashboardAnalytics companyId={1} />
         
         {/* AI Insights Panel */}
         <AIInsights companyId={1} />

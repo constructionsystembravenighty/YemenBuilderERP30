@@ -385,7 +385,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       res.json(analysis);
     } catch (error) {
-      res.status(500).json({ message: "Failed to analyze financial trends" });
+      console.error("Financial trends analysis error:", error);
+      res.status(500).json({ 
+        message: "Failed to analyze financial trends",
+        error: process.env.NODE_ENV === 'development' ? error.message : undefined
+      });
     }
   });
 

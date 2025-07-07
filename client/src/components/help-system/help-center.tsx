@@ -1,30 +1,33 @@
 import React, { useState, useMemo } from 'react';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Search, 
-  Book, 
-  Video, 
-  MessageCircle, 
-  Phone, 
-  Calendar,
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Search,
+  BookOpen,
+  Video,
+  MessageCircle,
   Star,
-  ThumbsUp,
-  ThumbsDown,
-  Download,
-  Play,
-  FileText,
-  HelpCircle,
-  ChevronRight,
   Clock,
-  User
+  User,
+  ChevronRight,
+  Play,
+  Download,
+  ExternalLink,
+  HelpCircle,
+  CheckCircle,
+  AlertCircle,
+  Phone,
+  Mail,
+  Calendar,
 } from 'lucide-react';
 
-export interface HelpArticle {
+interface HelpArticle {
   id: string;
   title: string;
   titleAr: string;
@@ -32,37 +35,34 @@ export interface HelpArticle {
   contentAr: string;
   category: string;
   categoryAr: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  readTime: number;
+  rating: number;
+  views: number;
+  lastUpdated: Date;
   tags: string[];
   tagsAr: string[];
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-  estimatedTime: number;
-  lastUpdated: Date;
-  views: number;
-  rating: number;
-  helpful: number;
-  notHelpful: number;
 }
 
-export interface VideoTutorial {
+interface VideoTutorial {
   id: string;
   title: string;
   titleAr: string;
   description: string;
   descriptionAr: string;
-  thumbnailUrl: string;
-  videoUrl: string;
-  duration: number;
   category: string;
   categoryAr: string;
+  duration: number;
   difficulty: 'beginner' | 'intermediate' | 'advanced';
-  views: number;
+  thumbnail: string;
+  videoUrl: string;
   rating: number;
-  instructor: string;
-  instructorAr: string;
-  createdAt: Date;
+  views: number;
+  transcript?: string;
+  transcriptAr?: string;
 }
 
-export interface FAQ {
+interface FAQ {
   id: string;
   question: string;
   questionAr: string;
@@ -70,432 +70,560 @@ export interface FAQ {
   answerAr: string;
   category: string;
   categoryAr: string;
-  popularity: number;
+  helpful: number;
+  notHelpful: number;
   lastUpdated: Date;
 }
 
-export interface HelpCenterProps {
-  articles: HelpArticle[];
-  videos: VideoTutorial[];
-  faqs: FAQ[];
-  onArticleView?: (articleId: string) => void;
-  onVideoPlay?: (videoId: string) => void;
+interface HelpCenterProps {
+  language?: 'ar' | 'en';
   onContactSupport?: () => void;
   onBookTraining?: () => void;
-  onFeedback?: (type: 'helpful' | 'not-helpful', itemId: string, itemType: 'article' | 'video' | 'faq') => void;
-  className?: string;
 }
 
-const getDifficultyColor = (difficulty: string) => {
-  switch (difficulty) {
-    case 'beginner': return 'bg-green-100 text-green-800';
-    case 'intermediate': return 'bg-yellow-100 text-yellow-800';
-    case 'advanced': return 'bg-red-100 text-red-800';
-    default: return 'bg-gray-100 text-gray-800';
-  }
-};
-
-const getDifficultyText = (difficulty: string) => {
-  switch (difficulty) {
-    case 'beginner': return 'مبتدئ';
-    case 'intermediate': return 'متوسط';
-    case 'advanced': return 'متقدم';
-    default: return difficulty;
-  }
-};
-
-const formatDuration = (seconds: number) => {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-};
-
-export function HelpCenter({
-  articles,
-  videos,
-  faqs,
-  onArticleView,
-  onVideoPlay,
+export function HelpCenter({ 
+  language = 'ar', 
   onContactSupport,
-  onBookTraining,
-  onFeedback,
-  className = ''
+  onBookTraining 
 }: HelpCenterProps) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
-  const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
-  const [activeTab, setActiveTab] = useState('articles');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedArticle, setSelectedArticle] = useState<HelpArticle | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<VideoTutorial | null>(null);
 
-  const categories = useMemo(() => {
-    const cats = new Set<string>();
-    [...articles, ...videos, ...faqs].forEach(item => {
-      if (item.categoryAr) cats.add(item.categoryAr);
-    });
-    return Array.from(cats);
-  }, [articles, videos, faqs]);
+  // Sample help content - in production, this would come from an API
+  const helpArticles: HelpArticle[] = [
+    {
+      id: '1',
+      title: 'Getting Started with Project Management',
+      titleAr: 'البدء في إدارة المشاريع',
+      content: 'Complete guide to creating and managing construction projects...',
+      contentAr: 'دليل شامل لإنشاء وإدارة مشاريع البناء...',
+      category: 'projects',
+      categoryAr: 'المشاريع',
+      difficulty: 'beginner',
+      readTime: 5,
+      rating: 4.8,
+      views: 1250,
+      lastUpdated: new Date('2024-01-15'),
+      tags: ['projects', 'getting-started', 'basics'],
+      tagsAr: ['المشاريع', 'البداية', 'الأساسيات'],
+    },
+    {
+      id: '2',
+      title: 'Financial Management and IFRS Compliance',
+      titleAr: 'الإدارة المالية والامتثال لمعايير IFRS',
+      content: 'Understanding financial management and international accounting standards...',
+      contentAr: 'فهم الإدارة المالية ومعايير المحاسبة الدولية...',
+      category: 'finance',
+      categoryAr: 'المالية',
+      difficulty: 'intermediate',
+      readTime: 8,
+      rating: 4.6,
+      views: 890,
+      lastUpdated: new Date('2024-01-10'),
+      tags: ['finance', 'ifrs', 'accounting'],
+      tagsAr: ['المالية', 'معايير', 'محاسبة'],
+    },
+    {
+      id: '3',
+      title: 'Employee Management and HR Workflows',
+      titleAr: 'إدارة الموظفين وسير عمل الموارد البشرية',
+      content: 'Complete guide to managing employees and HR processes...',
+      contentAr: 'دليل شامل لإدارة الموظفين وعمليات الموارد البشرية...',
+      category: 'hr',
+      categoryAr: 'الموارد البشرية',
+      difficulty: 'beginner',
+      readTime: 6,
+      rating: 4.7,
+      views: 1100,
+      lastUpdated: new Date('2024-01-12'),
+      tags: ['employees', 'hr', 'management'],
+      tagsAr: ['الموظفين', 'الموارد البشرية', 'الإدارة'],
+    },
+  ];
 
+  const videoTutorials: VideoTutorial[] = [
+    {
+      id: '1',
+      title: 'Platform Overview: Dashboard and Navigation',
+      titleAr: 'نظرة عامة على المنصة: لوحة التحكم والتنقل',
+      description: 'Learn how to navigate the platform and use the dashboard effectively',
+      descriptionAr: 'تعلم كيفية التنقل في المنصة واستخدام لوحة التحكم بفعالية',
+      category: 'getting-started',
+      categoryAr: 'البداية',
+      duration: 450, // seconds
+      difficulty: 'beginner',
+      thumbnail: '/api/placeholder/video-thumb-1',
+      videoUrl: '/api/videos/dashboard-overview',
+      rating: 4.9,
+      views: 2100,
+    },
+    {
+      id: '2',
+      title: 'Creating and Managing Projects',
+      titleAr: 'إنشاء وإدارة المشاريع',
+      description: 'Step-by-step guide to project creation and management',
+      descriptionAr: 'دليل خطوة بخطوة لإنشاء المشاريع وإدارتها',
+      category: 'projects',
+      categoryAr: 'المشاريع',
+      duration: 720,
+      difficulty: 'intermediate',
+      thumbnail: '/api/placeholder/video-thumb-2',
+      videoUrl: '/api/videos/project-management',
+      rating: 4.8,
+      views: 1680,
+    },
+  ];
+
+  const faqs: FAQ[] = [
+    {
+      id: '1',
+      question: 'How do I create a new project?',
+      questionAr: 'كيف أنشئ مشروعاً جديداً؟',
+      answer: 'To create a new project, go to the Projects section and click the "Add Project" button...',
+      answerAr: 'لإنشاء مشروع جديد، اذهب إلى قسم المشاريع واضغط على زر "إضافة مشروع"...',
+      category: 'projects',
+      categoryAr: 'المشاريع',
+      helpful: 45,
+      notHelpful: 3,
+      lastUpdated: new Date('2024-01-15'),
+    },
+    {
+      id: '2',
+      question: 'How do I add team members to a project?',
+      questionAr: 'كيف أضيف أعضاء الفريق إلى المشروع؟',
+      answer: 'You can add team members by going to the project details and using the team management section...',
+      answerAr: 'يمكنك إضافة أعضاء الفريق عن طريق الذهاب إلى تفاصيل المشروع واستخدام قسم إدارة الفريق...',
+      category: 'projects',
+      categoryAr: 'المشاريع',
+      helpful: 38,
+      notHelpful: 2,
+      lastUpdated: new Date('2024-01-14'),
+    },
+    {
+      id: '3',
+      question: 'How do I generate financial reports?',
+      questionAr: 'كيف أولد التقارير المالية؟',
+      answer: 'Financial reports can be generated from the Reports section with various filtering options...',
+      answerAr: 'يمكن إنتاج التقارير المالية من قسم التقارير مع خيارات تصفية مختلفة...',
+      category: 'finance',
+      categoryAr: 'المالية',
+      helpful: 52,
+      notHelpful: 1,
+      lastUpdated: new Date('2024-01-13'),
+    },
+  ];
+
+  const categories = [
+    { id: 'all', name: 'All Categories', nameAr: 'جميع الفئات' },
+    { id: 'getting-started', name: 'Getting Started', nameAr: 'البداية' },
+    { id: 'projects', name: 'Projects', nameAr: 'المشاريع' },
+    { id: 'finance', name: 'Finance', nameAr: 'المالية' },
+    { id: 'hr', name: 'Human Resources', nameAr: 'الموارد البشرية' },
+    { id: 'equipment', name: 'Equipment', nameAr: 'المعدات' },
+    { id: 'documents', name: 'Documents', nameAr: 'المستندات' },
+  ];
+
+  // Filter content based on search and category
   const filteredArticles = useMemo(() => {
-    return articles.filter(article => {
-      const matchesSearch = searchTerm === '' || 
-        article.titleAr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        article.contentAr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        article.tagsAr.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+    return helpArticles.filter(article => {
+      const matchesSearch = searchQuery === '' || 
+        article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.titleAr.includes(searchQuery) ||
+        article.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        article.contentAr.includes(searchQuery);
       
-      const matchesCategory = selectedCategory === 'all' || article.categoryAr === selectedCategory;
-      const matchesDifficulty = selectedDifficulty === 'all' || article.difficulty === selectedDifficulty;
-      
-      return matchesSearch && matchesCategory && matchesDifficulty;
-    });
-  }, [articles, searchTerm, selectedCategory, selectedDifficulty]);
-
-  const filteredVideos = useMemo(() => {
-    return videos.filter(video => {
-      const matchesSearch = searchTerm === '' || 
-        video.titleAr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        video.descriptionAr.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesCategory = selectedCategory === 'all' || video.categoryAr === selectedCategory;
-      const matchesDifficulty = selectedDifficulty === 'all' || video.difficulty === selectedDifficulty;
-      
-      return matchesSearch && matchesCategory && matchesDifficulty;
-    });
-  }, [videos, searchTerm, selectedCategory, selectedDifficulty]);
-
-  const filteredFAQs = useMemo(() => {
-    return faqs.filter(faq => {
-      const matchesSearch = searchTerm === '' || 
-        faq.questionAr.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        faq.answerAr.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesCategory = selectedCategory === 'all' || faq.categoryAr === selectedCategory;
+      const matchesCategory = selectedCategory === 'all' || article.category === selectedCategory;
       
       return matchesSearch && matchesCategory;
     });
-  }, [faqs, searchTerm, selectedCategory]);
+  }, [searchQuery, selectedCategory]);
 
-  const handleFeedback = (type: 'helpful' | 'not-helpful', itemId: string, itemType: 'article' | 'video' | 'faq') => {
-    onFeedback?.(type, itemId, itemType);
+  const filteredVideos = useMemo(() => {
+    return videoTutorials.filter(video => {
+      const matchesSearch = searchQuery === '' || 
+        video.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        video.titleAr.includes(searchQuery) ||
+        video.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        video.descriptionAr.includes(searchQuery);
+      
+      const matchesCategory = selectedCategory === 'all' || video.category === selectedCategory;
+      
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, selectedCategory]);
+
+  const filteredFAQs = useMemo(() => {
+    return faqs.filter(faq => {
+      const matchesSearch = searchQuery === '' || 
+        faq.question.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        faq.questionAr.includes(searchQuery) ||
+        faq.answer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        faq.answerAr.includes(searchQuery);
+      
+      const matchesCategory = selectedCategory === 'all' || faq.category === selectedCategory;
+      
+      return matchesSearch && matchesCategory;
+    });
+  }, [searchQuery, selectedCategory]);
+
+  const getDifficultyBadge = (difficulty: string) => {
+    const colors = {
+      beginner: 'bg-green-100 text-green-800',
+      intermediate: 'bg-yellow-100 text-yellow-800',
+      advanced: 'bg-red-100 text-red-800',
+    };
+    const labels = {
+      beginner: language === 'ar' ? 'مبتدئ' : 'Beginner',
+      intermediate: language === 'ar' ? 'متوسط' : 'Intermediate',
+      advanced: language === 'ar' ? 'متقدم' : 'Advanced',
+    };
+    return (
+      <Badge className={colors[difficulty as keyof typeof colors]}>
+        {labels[difficulty as keyof typeof labels]}
+      </Badge>
+    );
+  };
+
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
   return (
-    <div className={`help-center bg-white rounded-lg ${className}`}>
+    <div className="space-y-6 max-w-7xl mx-auto p-6">
       {/* Header */}
-      <div className="p-6 border-b bg-gradient-to-r from-primary to-secondary text-white">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold mb-2 text-right">مركز المساعدة والتدريب</h1>
-          <p className="text-lg opacity-90 text-right">
-            دليلك الشامل لاستخدام نظام إدارة شركات المقاولات
-          </p>
-          
-          <div className="mt-6 relative">
-            <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <Input
-              placeholder="ابحث في المقالات والفيديوهات والأسئلة الشائعة..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pr-12 h-12 text-lg bg-white/10 border-white/20 text-white placeholder:text-white/70"
-            />
-          </div>
-        </div>
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl font-bold text-primary">
+          {language === 'ar' ? 'مركز المساعدة' : 'Help Center'}
+        </h1>
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          {language === 'ar' 
+            ? 'ابحث عن إجابات، شاهد البرامج التعليمية، واحصل على الدعم للاستفادة القصوى من منصة إدارة البناء'
+            : 'Find answers, watch tutorials, and get support to make the most of your construction management platform'
+          }
+        </p>
       </div>
 
-      {/* Quick Actions */}
-      <div className="p-6 border-b bg-gray-50">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={onContactSupport}>
-              <CardContent className="p-4 text-center">
-                <MessageCircle className="h-8 w-8 text-primary mx-auto mb-2" />
-                <h3 className="font-medium text-sm">تواصل مع الدعم</h3>
-                <p className="text-xs text-gray-600 mt-1">متاح 24/7</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={onBookTraining}>
-              <CardContent className="p-4 text-center">
-                <Calendar className="h-8 w-8 text-primary mx-auto mb-2" />
-                <h3 className="font-medium text-sm">حجز جلسة تدريب</h3>
-                <p className="text-xs text-gray-600 mt-1">تدريب شخصي</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardContent className="p-4 text-center">
-                <Phone className="h-8 w-8 text-primary mx-auto mb-2" />
-                <h3 className="font-medium text-sm">الدعم الهاتفي</h3>
-                <p className="text-xs text-gray-600 mt-1">+967 1 234 567</p>
-              </CardContent>
-            </Card>
-            
-            <Card className="cursor-pointer hover:shadow-md transition-shadow">
-              <CardContent className="p-4 text-center">
-                <Download className="h-8 w-8 text-primary mx-auto mb-2" />
-                <h3 className="font-medium text-sm">دليل المستخدم</h3>
-                <p className="text-xs text-gray-600 mt-1">PDF كامل</p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="max-w-4xl mx-auto p-6">
-        {/* Filters */}
-        <div className="flex flex-wrap items-center gap-4 mb-6">
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-          >
-            <option value="all">جميع الفئات</option>
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
-            ))}
-          </select>
-          
-          <select
-            value={selectedDifficulty}
-            onChange={(e) => setSelectedDifficulty(e.target.value)}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-          >
-            <option value="all">جميع المستويات</option>
-            <option value="beginner">مبتدئ</option>
-            <option value="intermediate">متوسط</option>
-            <option value="advanced">متقدم</option>
-          </select>
-          
-          <Badge variant="secondary" className="text-sm">
-            النتائج: {filteredArticles.length + filteredVideos.length + filteredFAQs.length}
-          </Badge>
-        </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="articles" className="flex items-center gap-2">
-              <Book className="h-4 w-4" />
-              المقالات ({filteredArticles.length})
-            </TabsTrigger>
-            <TabsTrigger value="videos" className="flex items-center gap-2">
-              <Video className="h-4 w-4" />
-              الفيديوهات ({filteredVideos.length})
-            </TabsTrigger>
-            <TabsTrigger value="faqs" className="flex items-center gap-2">
-              <HelpCircle className="h-4 w-4" />
-              الأسئلة الشائعة ({filteredFAQs.length})
-            </TabsTrigger>
-          </TabsList>
-          
-          {/* Articles Tab */}
-          <TabsContent value="articles">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredArticles.map(article => (
-                <Card key={article.id} className="cursor-pointer hover:shadow-lg transition-all">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg text-right mb-2">
-                          {article.titleAr}
-                        </CardTitle>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge className={getDifficultyColor(article.difficulty)}>
-                            {getDifficultyText(article.difficulty)}
-                          </Badge>
-                          <Badge variant="outline">{article.categoryAr}</Badge>
-                          <div className="flex items-center gap-1 text-sm text-gray-500">
-                            <Clock className="h-3 w-3" />
-                            {article.estimatedTime} دقيقة
-                          </div>
-                        </div>
-                      </div>
-                      <FileText className="h-5 w-5 text-gray-400" />
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <p className="text-gray-600 text-right text-sm mb-4 line-clamp-3">
-                      {article.contentAr.substring(0, 150)}...
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-sm text-gray-500">
-                        <div className="flex items-center gap-1">
-                          <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                          {article.rating.toFixed(1)}
-                        </div>
-                        <div>{article.views} مشاهدة</div>
-                      </div>
-                      
-                      <Button 
-                        size="sm" 
-                        onClick={() => onArticleView?.(article.id)}
-                        className="gap-2"
-                      >
-                        قراءة المقال
-                        <ChevronRight className="h-3 w-3" />
-                      </Button>
-                    </div>
-                    
-                    <Separator className="my-3" />
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-wrap gap-1">
-                        {article.tagsAr.slice(0, 3).map(tag => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleFeedback('helpful', article.id, 'article')}
-                          className="h-6 px-2"
-                        >
-                          <ThumbsUp className="h-3 w-3" />
-                          {article.helpful}
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleFeedback('not-helpful', article.id, 'article')}
-                          className="h-6 px-2"
-                        >
-                          <ThumbsDown className="h-3 w-3" />
-                          {article.notHelpful}
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+      {/* Search and Filters */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder={language === 'ar' ? 'ابحث في المساعدة...' : 'Search help articles...'}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pr-10"
+              />
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {categories.map((category) => (
+                <Button
+                  key={category.id}
+                  variant={selectedCategory === category.id ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedCategory(category.id)}
+                >
+                  {language === 'ar' ? category.nameAr : category.name}
+                </Button>
               ))}
             </div>
-          </TabsContent>
-          
-          {/* Videos Tab */}
-          <TabsContent value="videos">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredVideos.map(video => (
-                <Card key={video.id} className="cursor-pointer hover:shadow-lg transition-all">
-                  <div className="relative">
-                    <img
-                      src={video.thumbnailUrl}
-                      alt={video.titleAr}
-                      className="w-full h-40 object-cover rounded-t-lg"
-                    />
-                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center rounded-t-lg">
-                      <Button
-                        size="lg"
-                        onClick={() => onVideoPlay?.(video.id)}
-                        className="rounded-full h-12 w-12 p-0"
-                      >
-                        <Play className="h-6 w-6" />
-                      </Button>
-                    </div>
-                    <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                      {formatDuration(video.duration)}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Main Content Tabs */}
+      <Tabs defaultValue="articles" className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="articles" className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4" />
+            {language === 'ar' ? 'المقالات' : 'Articles'}
+          </TabsTrigger>
+          <TabsTrigger value="videos" className="flex items-center gap-2">
+            <Video className="h-4 w-4" />
+            {language === 'ar' ? 'الفيديوهات' : 'Videos'}
+          </TabsTrigger>
+          <TabsTrigger value="faqs" className="flex items-center gap-2">
+            <HelpCircle className="h-4 w-4" />
+            {language === 'ar' ? 'الأسئلة الشائعة' : 'FAQs'}
+          </TabsTrigger>
+          <TabsTrigger value="contact" className="flex items-center gap-2">
+            <MessageCircle className="h-4 w-4" />
+            {language === 'ar' ? 'تواصل معنا' : 'Contact'}
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Articles Tab */}
+        <TabsContent value="articles" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredArticles.map((article) => (
+              <Card key={article.id} className="cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => setSelectedArticle(article)}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <CardTitle className="text-lg">
+                      {language === 'ar' ? article.titleAr : article.title}
+                    </CardTitle>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </div>
+                  <CardDescription>
+                    {language === 'ar' ? article.categoryAr : article.category}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between mb-3">
+                    {getDifficultyBadge(article.difficulty)}
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                      {article.rating}
                     </div>
                   </div>
-                  
-                  <CardContent className="p-4">
-                    <h3 className="font-medium text-right mb-2">{video.titleAr}</h3>
-                    <p className="text-sm text-gray-600 text-right mb-3 line-clamp-2">
-                      {video.descriptionAr}
-                    </p>
-                    
-                    <div className="flex items-center gap-2 mb-3">
-                      <Badge className={getDifficultyColor(video.difficulty)}>
-                        {getDifficultyText(video.difficulty)}
-                      </Badge>
-                      <Badge variant="outline">{video.categoryAr}</Badge>
+                  <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {article.readTime} {language === 'ar' ? 'دقائق' : 'min read'}
                     </div>
-                    
-                    <div className="flex items-center justify-between text-sm text-gray-500">
-                      <div className="flex items-center gap-1">
-                        <User className="h-3 w-3" />
-                        {video.instructorAr}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                        {video.rating.toFixed(1)}
-                      </div>
+                    <div className="flex items-center gap-1">
+                      <User className="h-3 w-3" />
+                      {article.views.toLocaleString()} {language === 'ar' ? 'مشاهدة' : 'views'}
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-          
-          {/* FAQs Tab */}
-          <TabsContent value="faqs">
-            <div className="space-y-4">
-              {filteredFAQs.map(faq => (
-                <Card key={faq.id}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <h3 className="text-lg font-medium text-right flex-1">
-                        {faq.questionAr}
-                      </h3>
-                      <Badge variant="outline">{faq.categoryAr}</Badge>
-                    </div>
-                    
-                    <p className="text-gray-600 text-right mb-4 leading-relaxed">
-                      {faq.answerAr}
-                    </p>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-gray-500">
-                        آخر تحديث: {faq.lastUpdated.toLocaleDateString('ar-YE')}
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleFeedback('helpful', faq.id, 'faq')}
-                          className="h-6 px-2"
-                        >
-                          <ThumbsUp className="h-3 w-3" />
-                          مفيد
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleFeedback('not-helpful', faq.id, 'faq')}
-                          className="h-6 px-2"
-                        >
-                          <ThumbsDown className="h-3 w-3" />
-                          غير مفيد
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
-      </div>
-      
-      {/* Footer */}
-      <div className="border-t bg-gray-50 p-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-gray-600 mb-4">
-            لا تجد ما تبحث عنه؟ فريق الدعم الفني متاح لمساعدتك
-          </p>
-          <div className="flex items-center justify-center gap-4">
-            <Button onClick={onContactSupport} className="gap-2">
-              <MessageCircle className="h-4 w-4" />
-              تواصل معنا
-            </Button>
-            <Button variant="outline" onClick={onBookTraining} className="gap-2">
-              <Calendar className="h-4 w-4" />
-              احجز تدريب
-            </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
-        </div>
-      </div>
+        </TabsContent>
+
+        {/* Videos Tab */}
+        <TabsContent value="videos" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredVideos.map((video) => (
+              <Card key={video.id} className="cursor-pointer hover:shadow-lg transition-shadow"
+                    onClick={() => setSelectedVideo(video)}>
+                <div className="relative">
+                  <div className="aspect-video bg-gray-200 rounded-t-lg flex items-center justify-center">
+                    <Play className="h-12 w-12 text-primary" />
+                  </div>
+                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-75 text-white px-2 py-1 rounded text-xs">
+                    {formatDuration(video.duration)}
+                  </div>
+                </div>
+                <CardHeader>
+                  <CardTitle className="text-lg">
+                    {language === 'ar' ? video.titleAr : video.title}
+                  </CardTitle>
+                  <CardDescription>
+                    {language === 'ar' ? video.descriptionAr : video.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-center justify-between mb-3">
+                    {getDifficultyBadge(video.difficulty)}
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                      {video.rating}
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {video.views.toLocaleString()} {language === 'ar' ? 'مشاهدة' : 'views'}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* FAQs Tab */}
+        <TabsContent value="faqs" className="space-y-4">
+          <div className="space-y-3">
+            {filteredFAQs.map((faq) => (
+              <Card key={faq.id}>
+                <CardHeader>
+                  <CardTitle className="text-lg">
+                    {language === 'ar' ? faq.questionAr : faq.question}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    {language === 'ar' ? faq.answerAr : faq.answer}
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                      <Button size="sm" variant="outline" className="flex items-center gap-2">
+                        <CheckCircle className="h-3 w-3" />
+                        {language === 'ar' ? 'مفيد' : 'Helpful'} ({faq.helpful})
+                      </Button>
+                      <Button size="sm" variant="outline" className="flex items-center gap-2">
+                        <AlertCircle className="h-3 w-3" />
+                        {language === 'ar' ? 'غير مفيد' : 'Not helpful'} ({faq.notHelpful})
+                      </Button>
+                    </div>
+                    <Badge variant="secondary">
+                      {language === 'ar' ? faq.categoryAr : faq.category}
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* Contact Tab */}
+        <TabsContent value="contact" className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Phone className="h-5 w-5" />
+                  {language === 'ar' ? 'الدعم الهاتفي' : 'Phone Support'}
+                </CardTitle>
+                <CardDescription>
+                  {language === 'ar' ? 'تحدث مع فريق الدعم مباشرة' : 'Speak directly with our support team'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="font-medium mb-2">+967 1 234-567</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {language === 'ar' ? 'الأحد - الخميس: 8:00 ص - 6:00 م' : 'Sunday - Thursday: 8:00 AM - 6:00 PM'}
+                </p>
+                <Button className="w-full">
+                  {language === 'ar' ? 'اتصل الآن' : 'Call Now'}
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-5 w-5" />
+                  {language === 'ar' ? 'الدعم عبر البريد الإلكتروني' : 'Email Support'}
+                </CardTitle>
+                <CardDescription>
+                  {language === 'ar' ? 'احصل على إجابة خلال 24 ساعة' : 'Get a response within 24 hours'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="font-medium mb-2">support@constructionplatform.com</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {language === 'ar' ? 'نرد على جميع الرسائل خلال يوم عمل واحد' : 'We respond to all emails within one business day'}
+                </p>
+                <Button className="w-full" onClick={onContactSupport}>
+                  {language === 'ar' ? 'إرسال رسالة' : 'Send Message'}
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  {language === 'ar' ? 'جلسة تدريب شخصية' : 'Personal Training Session'}
+                </CardTitle>
+                <CardDescription>
+                  {language === 'ar' ? 'احجز جلسة تدريب مع خبير' : 'Book a training session with an expert'}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {language === 'ar' 
+                    ? 'احصل على تدريب شخصي لفريقك لمدة 60 دقيقة'
+                    : 'Get personalized training for your team in a 60-minute session'
+                  }
+                </p>
+                <Button className="w-full" onClick={onBookTraining}>
+                  {language === 'ar' ? 'احجز جلسة' : 'Book Session'}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* Article Dialog */}
+      {selectedArticle && (
+        <Dialog open={!!selectedArticle} onOpenChange={() => setSelectedArticle(null)}>
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">
+                {language === 'ar' ? selectedArticle.titleAr : selectedArticle.title}
+              </DialogTitle>
+              <DialogDescription>
+                <div className="flex items-center gap-4 mt-2">
+                  <Badge variant="secondary">
+                    {language === 'ar' ? selectedArticle.categoryAr : selectedArticle.category}
+                  </Badge>
+                  {getDifficultyBadge(selectedArticle.difficulty)}
+                  <div className="flex items-center gap-1 text-sm">
+                    <Clock className="h-3 w-3" />
+                    {selectedArticle.readTime} {language === 'ar' ? 'دقائق' : 'min read'}
+                  </div>
+                </div>
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-6">
+              <div className="prose max-w-none">
+                {language === 'ar' ? selectedArticle.contentAr : selectedArticle.content}
+              </div>
+              <Separator className="my-6" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <Button size="sm" variant="outline">
+                    <Star className="h-4 w-4 mr-2" />
+                    {language === 'ar' ? 'تقييم' : 'Rate'}
+                  </Button>
+                  <Button size="sm" variant="outline">
+                    <Download className="h-4 w-4 mr-2" />
+                    {language === 'ar' ? 'تحميل PDF' : 'Download PDF'}
+                  </Button>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {language === 'ar' ? 'آخر تحديث:' : 'Last updated:'} {selectedArticle.lastUpdated.toLocaleDateString()}
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* Video Dialog */}
+      {selectedVideo && (
+        <Dialog open={!!selectedVideo} onOpenChange={() => setSelectedVideo(null)}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle className="text-2xl">
+                {language === 'ar' ? selectedVideo.titleAr : selectedVideo.title}
+              </DialogTitle>
+              <DialogDescription>
+                {language === 'ar' ? selectedVideo.descriptionAr : selectedVideo.description}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-6">
+              <div className="aspect-video bg-gray-100 rounded-lg flex items-center justify-center mb-4">
+                <div className="text-center">
+                  <Play className="h-16 w-16 text-primary mx-auto mb-2" />
+                  <p className="text-muted-foreground">
+                    {language === 'ar' ? 'مشغل الفيديو' : 'Video Player'} - {formatDuration(selectedVideo.duration)}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                {getDifficultyBadge(selectedVideo.difficulty)}
+                <div className="flex items-center gap-1">
+                  <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                  {selectedVideo.rating}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {selectedVideo.views.toLocaleString()} {language === 'ar' ? 'مشاهدة' : 'views'}
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
