@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { RTLProvider } from "@/components/ui/rtl-provider";
 import { initializeClientDatabase } from "./lib/client-database";
 import { initializeOfflineAPI } from "./lib/offline-first-api";
+import { syncEngine } from "./lib/sync-engine";
+import { VersionManager } from "./lib/version-manager";
 import { useEffect, useState } from "react";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
@@ -86,8 +88,16 @@ function OfflineInitializer({ children }: { children: React.ReactNode }) {
         await initializeOfflineAPI();
         console.log('App: Offline API system initialized');
         
+        // Initialize version manager
+        await VersionManager.initialize();
+        console.log('App: Version manager initialized');
+        
+        // Initialize sync engine
+        await syncEngine.initialize();
+        console.log('App: Sync engine initialized');
+        
         setIsInitialized(true);
-        console.log('App: Offline-first system fully operational');
+        console.log('App: Complete offline-first construction management system operational');
       } catch (error) {
         console.error('App: Failed to initialize offline system:', error);
         setInitError(error instanceof Error ? error.message : 'Unknown initialization error');

@@ -373,6 +373,249 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Version Management API
+  app.get("/api/version", async (req, res) => {
+    try {
+      const version = {
+        major: 1,
+        minor: 2,
+        patch: 0,
+        build: Date.now().toString(),
+        timestamp: new Date().toISOString(),
+        features: [
+          'PWA_OFFLINE_SUPPORT',
+          'ARABIC_RTL_INTERFACE', 
+          'BUSINESS_INTELLIGENCE',
+          'REAL_TIME_SYNC',
+          'VERSION_TRACKING',
+          'DATA_MIGRATION'
+        ],
+        migrations: [
+          'initial_schema_v1.0.0',
+          'sync_status_v1.1.0',
+          'version_tracking_v1.2.0'
+        ]
+      };
+      
+      res.json(version);
+    } catch (error) {
+      console.error('Failed to get version:', error);
+      res.status(500).json({ error: 'Failed to retrieve version information' });
+    }
+  });
+
+  // Synchronization API
+  app.post("/api/sync/batch", async (req, res) => {
+    try {
+      const batch = req.body;
+      console.log(`Sync: Processing batch ${batch.id} with ${batch.operations.length} operations`);
+      
+      const results = {
+        successful: [],
+        conflicts: [],
+        errors: []
+      };
+
+      for (const operation of batch.operations) {
+        try {
+          await processSyncOperation(operation, results);
+        } catch (error) {
+          console.error(`Sync: Operation ${operation.id} failed:`, error);
+          results.errors.push({
+            operationId: operation.id,
+            error: error.message
+          });
+        }
+      }
+
+      console.log(`Sync: Batch ${batch.id} completed. Success: ${results.successful.length}, Conflicts: ${results.conflicts.length}, Errors: ${results.errors.length}`);
+      res.json(results);
+      
+    } catch (error) {
+      console.error('Sync: Batch processing failed:', error);
+      res.status(500).json({ error: 'Failed to process sync batch' });
+    }
+  });
+
+  app.get("/api/sync/changes", async (req, res) => {
+    try {
+      const since = req.query.since as string;
+      console.log(`Sync: Fetching changes since ${since || 'beginning'}`);
+      
+      const changes = [];
+      const sinceDate = since ? new Date(since) : new Date(0);
+      
+      // For now, return empty changes array
+      // In production, implement proper change tracking
+      console.log(`Sync: Returning ${changes.length} changes`);
+      res.json(changes);
+      
+    } catch (error) {
+      console.error('Sync: Failed to fetch changes:', error);
+      res.status(500).json({ error: 'Failed to fetch changes' });
+    }
+  });
+
+  async function processSyncOperation(operation: any, results: any): Promise<void> {
+    const { type, entity, entityId, data } = operation;
+    
+    try {
+      switch (entity) {
+        case 'projects':
+          if (type === 'create') {
+            const created = await storage.createProject(data);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId: created.id,
+              serverData: created
+            });
+          } else if (type === 'update') {
+            const updated = await storage.updateProject(entityId, data);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId,
+              serverData: updated
+            });
+          } else if (type === 'delete') {
+            await storage.deleteProject(entityId);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId
+            });
+          }
+          break;
+          
+        case 'transactions':
+          if (type === 'create') {
+            const created = await storage.createTransaction(data);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId: created.id,
+              serverData: created
+            });
+          } else if (type === 'update') {
+            const updated = await storage.updateTransaction(entityId, data);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId,
+              serverData: updated
+            });
+          } else if (type === 'delete') {
+            await storage.deleteTransaction(entityId);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId
+            });
+          }
+          break;
+          
+        case 'users':
+          if (type === 'create') {
+            const created = await storage.createUser(data);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId: created.id,
+              serverData: created
+            });
+          } else if (type === 'update') {
+            const updated = await storage.updateUser(entityId, data);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId,
+              serverData: updated
+            });
+          } else if (type === 'delete') {
+            await storage.deleteUser(entityId);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId
+            });
+          }
+          break;
+          
+        case 'equipment':
+          if (type === 'create') {
+            const created = await storage.createEquipment(data);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId: created.id,
+              serverData: created
+            });
+          } else if (type === 'update') {
+            const updated = await storage.updateEquipment(entityId, data);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId,
+              serverData: updated
+            });
+          } else if (type === 'delete') {
+            await storage.deleteEquipment(entityId);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId
+            });
+          }
+          break;
+          
+        case 'warehouses':
+          if (type === 'create') {
+            const created = await storage.createWarehouse(data);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId: created.id,
+              serverData: created
+            });
+          } else if (type === 'update') {
+            const updated = await storage.updateWarehouse(entityId, data);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId,
+              serverData: updated
+            });
+          } else if (type === 'delete') {
+            await storage.deleteWarehouse(entityId);
+            results.successful.push({
+              operationId: operation.id,
+              entity,
+              entityId
+            });
+          }
+          break;
+          
+        default:
+          throw new Error(`Unknown entity type: ${entity}`);
+      }
+    } catch (error) {
+      // Check if it's a conflict error
+      if (error.message?.includes('conflict') || error.message?.includes('version')) {
+        results.conflicts.push({
+          operationId: operation.id,
+          entity,
+          entityId,
+          localData: data,
+          serverData: null, // Would fetch from database in production
+          reason: error.message
+        });
+      } else {
+        throw error;
+      }
+    }
+  }
+
   const httpServer = createServer(app);
   return httpServer;
 }

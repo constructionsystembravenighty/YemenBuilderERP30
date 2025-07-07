@@ -9,6 +9,7 @@ import { NotificationCenter } from "@/components/notifications/notification-cent
 import { AdvancedSearch } from "@/components/search/advanced-search";
 import { PerformanceMonitor } from "@/components/performance/performance-monitor";
 import { NetworkStatus } from "@/components/network-status";
+import { SyncStatusIndicator } from "@/components/sync-status-indicator";
 import { useState } from "react";
 
 interface HeaderProps {
@@ -82,6 +83,9 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
               <Activity className="h-5 w-5" />
             </Button>
           </div>
+          
+          {/* Sync Status */}
+          <SyncStatusIndicator className="hidden lg:block" />
           
           {/* Network Status */}
           <NetworkStatus />
