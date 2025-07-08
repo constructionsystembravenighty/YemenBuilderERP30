@@ -2,6 +2,8 @@ import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { businessIntelligence } from "./business-intelligence";
+import { multiPlatformEngine } from "./multi-platform-engine";
+import { ifrsEngine } from "./ifrs-engine";
 import { registerFileRoutes } from "./file-routes";
 import { 
   insertCompanySchema, insertUserSchema, insertProjectSchema, 
@@ -869,6 +871,272 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       res.status(500).json({ message: "Failed to generate project analytics" });
+    }
+  });
+
+  // Multi-Platform Engine API endpoints
+  app.get("/api/platforms/status", async (req, res) => {
+    try {
+      const status = multiPlatformEngine.getPlatformStatus();
+      res.json({
+        platforms: status,
+        lastUpdate: new Date(),
+        totalPlatforms: status.length,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get platform status" });
+    }
+  });
+
+  app.get("/api/platforms/roadmap", async (req, res) => {
+    try {
+      const roadmap = multiPlatformEngine.getImplementationRoadmap();
+      res.json({
+        phases: roadmap,
+        totalDuration: "16 weeks",
+        totalFeatures: 50,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get implementation roadmap" });
+    }
+  });
+
+  app.get("/api/platforms/config/windows", async (req, res) => {
+    try {
+      const config = multiPlatformEngine.getWindowsServerConfig();
+      res.json(config);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get Windows configuration" });
+    }
+  });
+
+  app.get("/api/platforms/config/mobile", async (req, res) => {
+    try {
+      const config = multiPlatformEngine.getMobileAppConfig();
+      res.json(config);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get mobile configuration" });
+    }
+  });
+
+  app.get("/api/platforms/config/glassmorphism", async (req, res) => {
+    try {
+      const config = multiPlatformEngine.getGlassmorphismConfig();
+      res.json(config);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get glassmorphism configuration" });
+    }
+  });
+
+  app.post("/api/platforms/sync", async (req, res) => {
+    try {
+      const result = await multiPlatformEngine.syncAllPlatforms();
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to sync platforms" });
+    }
+  });
+
+  app.get("/api/platforms/technical-specs", async (req, res) => {
+    try {
+      const specs = multiPlatformEngine.generateTechnicalSpecs();
+      res.json(specs);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate technical specifications" });
+    }
+  });
+
+  // IFRS Compliance API endpoints
+  app.post("/api/ifrs/revenue-recognition", async (req, res) => {
+    try {
+      const { contractValue, costsIncurredToDate, estimatedTotalCosts, revenueRecognizedToDate } = req.body;
+      
+      if (!contractValue || !costsIncurredToDate || !estimatedTotalCosts) {
+        return res.status(400).json({ message: "Missing required IFRS fields" });
+      }
+
+      const calculation = ifrsEngine.calculateRevenueRecognition({
+        contractValue: parseFloat(contractValue),
+        costsIncurredToDate: parseFloat(costsIncurredToDate),
+        estimatedTotalCosts: parseFloat(estimatedTotalCosts),
+        revenueRecognizedToDate: parseFloat(revenueRecognizedToDate || '0'),
+      });
+      
+      res.json(calculation);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to calculate IFRS revenue recognition" });
+    }
+  });
+
+  app.post("/api/ifrs/percentage-completion", async (req, res) => {
+    try {
+      const { costsIncurredToDate, estimatedTotalCosts, method } = req.body;
+      
+      if (!costsIncurredToDate || !estimatedTotalCosts) {
+        return res.status(400).json({ message: "Missing required fields for percentage completion" });
+      }
+
+      const percentage = ifrsEngine.calculatePercentageOfCompletion(
+        parseFloat(costsIncurredToDate),
+        parseFloat(estimatedTotalCosts),
+        method || 'cost-to-cost'
+      );
+      
+      res.json({ 
+        percentageComplete: percentage,
+        method: method || 'cost-to-cost',
+        costsIncurredToDate: parseFloat(costsIncurredToDate),
+        estimatedTotalCosts: parseFloat(estimatedTotalCosts),
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to calculate percentage of completion" });
+    }
+  });
+
+  app.get("/api/ifrs/compliance-check/:projectId", async (req, res) => {
+    try {
+      const projectId = parseInt(req.params.projectId);
+      const project = await storage.getProject(projectId);
+      
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      const complianceCheck = ifrsEngine.generateComplianceReport({
+        contractValue: parseFloat(project.contractValue || '0'),
+        costsIncurredToDate: parseFloat(project.costsIncurredToDate || '0'),
+        estimatedTotalCosts: parseFloat(project.estimatedTotalCosts || '0'),
+        revenueRecognizedToDate: parseFloat(project.revenueRecognizedToDate || '0'),
+      });
+      
+      res.json({
+        projectId,
+        projectName: project.name,
+        compliance: complianceCheck,
+        lastChecked: new Date(),
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to perform IFRS compliance check" });
+    }
+  });
+
+  // Enhanced development plan endpoints
+  app.get("/api/development/plan", async (req, res) => {
+    try {
+      const developmentPlan = {
+        overview: {
+          title: "Yemen Construction Management Platform - Enterprise Multi-Platform Strategy",
+          status: "Phase 1 Implementation - IFRS Foundation",
+          completion: "25%",
+          nextMilestone: "IFRS 15 Revenue Recognition Engine",
+          estimatedCompletion: "16 weeks total",
+        },
+        currentPhase: {
+          name: "Phase 1: IFRS Compliance Foundation",
+          duration: "4 weeks",
+          progress: "50%",
+          features: [
+            "IFRS 15 Revenue Recognition Engine",
+            "IFRS 16 Lease Management System", 
+            "Yemen-specific compliance calculations",
+            "Automated progress billing interface",
+          ],
+          platforms: ["web"],
+          priority: "high",
+        },
+        technicalStack: {
+          frontend: "React 18 + TypeScript + Vite",
+          backend: "Node.js + Express + PostgreSQL",
+          mobile: "React Native/Expo + Native iOS/Android",
+          windows: ".NET 8 + Entity Framework + WPF",
+          design: "Glassmorphism UI + 8K optimization",
+          compliance: "IFRS 15/16 + Yemen regulations",
+        },
+        marketPosition: {
+          targetMarket: "Yemen construction companies (416+ contractors)",
+          competitiveAdvantage: "Offline-first + IFRS compliance + Arabic RTL",
+          globalExpansion: "MENA region, then international",
+          revenueProjection: "$5M ARR by Year 2",
+        },
+      };
+      
+      res.json(developmentPlan);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get development plan" });
+    }
+  });
+
+  app.get("/api/development/user-personas", async (req, res) => {
+    try {
+      const userPersonas = [
+        {
+          name: "Ahmed Al-Hashimi",
+          role: "Construction Company CEO",
+          demographics: "Male, 45-55, Sana'a-based, Engineering background",
+          technicalSkills: "Basic computer literacy, smartphone power user",
+          primaryGoals: [
+            "Real-time project oversight across multiple sites",
+            "Financial transparency and IFRS compliance for international partnerships",
+            "Cost optimization and profit margin improvement",
+          ],
+          painPoints: [
+            "Lack of real-time project visibility",
+            "Manual financial reporting and compliance challenges", 
+            "Difficulty accessing data while traveling between sites",
+          ],
+          useCases: [
+            "Daily dashboard reviews on mobile during site visits",
+            "Weekly financial reports generation for board meetings",
+            "Monthly IFRS compliance reporting for international clients",
+          ],
+        },
+        {
+          name: "Fatima Al-Shamiri",
+          role: "Project Manager",
+          demographics: "Female, 30-40, University education, Bilingual",
+          technicalSkills: "Advanced computer skills, familiar with project management software",
+          primaryGoals: [
+            "Efficient project timeline management with Gantt chart visualization",
+            "Resource allocation optimization across multiple projects",
+            "Real-time collaboration with site supervisors and teams",
+          ],
+          painPoints: [
+            "Manual project tracking and reporting",
+            "Communication delays with field teams",
+            "Lack of centralized document management",
+          ],
+          useCases: [
+            "Interactive Gantt chart management from desktop and tablet",
+            "Real-time project updates via mobile notifications",
+            "Document sharing and version control across teams",
+          ],
+        },
+        {
+          name: "Omar Al-Zahra",
+          role: "Financial Controller", 
+          demographics: "Male, 35-45, Accounting background, English proficient",
+          technicalSkills: "Advanced Excel user, familiar with accounting software",
+          primaryGoals: [
+            "IFRS-compliant financial reporting and revenue recognition",
+            "Multi-currency support for international projects",
+            "Automated financial controls and audit trail maintenance",
+          ],
+          painPoints: [
+            "Manual percentage completion calculations",
+            "Lack of automated IFRS compliance checking",
+            "Difficulty managing multi-currency transactions",
+          ],
+          useCases: [
+            "Monthly IFRS 15 revenue recognition calculations",
+            "Real-time cash flow monitoring and forecasting",
+            "Automated audit trail generation for compliance",
+          ],
+        },
+      ];
+      
+      res.json(userPersonas);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to get user personas" });
     }
   });
 
