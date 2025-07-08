@@ -2,6 +2,7 @@ import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { businessIntelligence } from "./business-intelligence";
+import { registerFileRoutes } from "./file-routes";
 import { 
   insertCompanySchema, insertUserSchema, insertProjectSchema, 
   insertTransactionSchema, insertEquipmentSchema, insertWarehouseSchema, insertDocumentSchema 
@@ -615,6 +616,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
     }
   }
+
+  // Register file management routes
+  registerFileRoutes(app);
 
   const httpServer = createServer(app);
   return httpServer;
