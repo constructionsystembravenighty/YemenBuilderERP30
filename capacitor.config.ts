@@ -2,21 +2,22 @@ import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.construction.management.yemen',
-  appName: 'منصة إدارة البناء - Construction Manager',
+  appName: 'منصة إدارة البناء',
   webDir: 'dist',
   server: {
     androidScheme: 'https',
-    iosScheme: 'https',
     hostname: 'localhost',
-    url: 'http://localhost:3000'
+    url: 'http://localhost:3000',
+    allowNavigation: ['*']
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 3000,
       backgroundColor: '#1B4332',
       androidSplashResourceName: 'splash',
       androidScaleType: 'CENTER_CROP',
-      showSpinner: false,
+      showSpinner: true,
+      spinnerColor: '#D4AF37',
       splashFullScreen: true,
       splashImmersive: true
     },
@@ -25,17 +26,28 @@ const config: CapacitorConfig = {
       backgroundColor: '#1B4332'
     },
     App: {
-      allowMixedContent: true
+      allowMixedContent: true,
+      handleInitialLoad: true
+    },
+    Device: {
+      enable: true
+    },
+    Filesystem: {
+      enable: true
     }
   },
   android: {
     allowMixedContent: true,
     captureInput: true,
-    webContentsDebuggingEnabled: true
-  },
-  ios: {
-    allowsLinkPreview: false,
-    scrollEnabled: false
+    webContentsDebuggingEnabled: true,
+    minWebViewVersion: 60,
+    buildOptions: {
+      keystorePath: undefined,
+      keystorePassword: undefined,
+      keystoreAlias: undefined,
+      keystoreAliasPassword: undefined,
+      releaseType: 'debug'
+    }
   }
 };
 
