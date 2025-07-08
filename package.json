@@ -13,9 +13,12 @@
     "mobile:build": "npm run build && npx cap copy && npx cap sync",
     "mobile:android": "npm run mobile:build && npx cap run android",
     "mobile:ios": "npm run mobile:build && npx cap run ios",
-    "mobile:dev": "npm run build && npx cap copy && npx cap run android --livereload",
+    "mobile:dev": "npx cap run android --livereload",
     "apk:build": "npm run mobile:build && cd android && ./gradlew assembleDebug",
-    "apk:release": "npm run mobile:build && cd android && ./gradlew assembleRelease"
+    "apk:release": "npm run mobile:build && cd android && ./gradlew assembleRelease",
+    "build:mobile": "node mobile/build-mobile.js",
+    "android": "npx cap run android",
+    "ios": "npx cap run ios"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.1",
