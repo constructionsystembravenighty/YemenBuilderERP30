@@ -24,7 +24,7 @@ export function ServiceWorkerSetup() {
             scope: '/'
           });
 
-          console.log('ServiceWorker registration successful:', registration);
+          console.log('SW: ServiceWorker registration successful:', registration);
 
           // Handle updates
           registration.addEventListener('updatefound', () => {
@@ -50,7 +50,8 @@ export function ServiceWorkerSetup() {
           });
 
         } catch (error) {
-          console.error('ServiceWorker registration failed:', error);
+          console.warn('SW: Registration failed, continuing without offline support:', error);
+          // App works fine without service worker
         }
       });
     }
