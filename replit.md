@@ -28,6 +28,10 @@ This is a comprehensive construction company management platform designed specif
 ✅ **VERIFIED**: Real-time sync and offline-first architecture operational
 ✅ **OPERATIONAL**: Complete dashboard with financial metrics and project analytics
 ✅ **READY**: Production-ready bilingual construction management platform
+✅ **NEW**: Global Expansion Demo with IFRS 15 compliance and multi-currency support
+✅ **INTEGRATED**: Advanced IFRS revenue recognition engine with percentage completion method
+✅ **ADDED**: Global projects from Dubai, Riyadh, London, and Singapore with sample data
+✅ **FUNCTIONAL**: Currency conversion engine supporting 15+ currencies with volatility analysis
 
 ## System Architecture
 

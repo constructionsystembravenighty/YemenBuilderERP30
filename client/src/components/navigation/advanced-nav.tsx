@@ -106,6 +106,13 @@ const navigationItems: NavItem[] = [
     icon: BarChart3, 
     label: "التقارير والتحليلات",
     description: "تقارير شاملة وتحليلات بيانات"
+  },
+  { 
+    path: "/global-expansion", 
+    icon: Building, 
+    label: "التوسع العالمي",
+    description: "مشاريع عالمية مع IFRS 15 والعملات المتعددة",
+    badge: "جديد"
   }
 ];
 

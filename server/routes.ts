@@ -617,6 +617,261 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }
 
+  // IFRS 15 Revenue Recognition endpoints
+  app.post("/api/ifrs/progress-billing", async (req, res) => {
+    try {
+      const { projectId } = req.body;
+      const project = await storage.getProject(projectId);
+      
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      const { ifrsEngine } = await import("./ifrs-engine");
+      const billing = ifrsEngine.calculateProgressBilling({
+        contractValue: parseFloat(project.contractValue || '0'),
+        costsIncurredToDate: parseFloat(project.costsIncurredToDate || '0'),
+        estimatedTotalCosts: parseFloat(project.estimatedTotalCosts || '0'),
+        billingToDate: parseFloat(project.billingToDate || '0'),
+        contractCurrency: project.contractCurrency || 'YER',
+      });
+      
+      res.json(billing);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to calculate progress billing" });
+    }
+  });
+
+  app.post("/api/ifrs/revenue-recognition", async (req, res) => {
+    try {
+      const { projectId } = req.body;
+      const project = await storage.getProject(projectId);
+      
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      const { ifrsEngine } = await import("./ifrs-engine");
+      const recognition = ifrsEngine.calculateRevenueRecognition({
+        contractValue: parseFloat(project.contractValue || '0'),
+        costsIncurredToDate: parseFloat(project.costsIncurredToDate || '0'),
+        estimatedTotalCosts: parseFloat(project.estimatedTotalCosts || '0'),
+        revenueRecognizedToDate: parseFloat(project.revenueRecognizedToDate || '0'),
+      });
+      
+      res.json(recognition);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to calculate revenue recognition" });
+    }
+  });
+
+  app.get("/api/ifrs/wip-schedule", async (req, res) => {
+    try {
+      const companyId = parseInt(req.query.companyId as string) || 1;
+      const projects = await storage.getProjectsByCompany(companyId);
+      
+      const wipData = projects.map(project => ({
+        id: project.id,
+        name: project.name,
+        contractValue: parseFloat(project.contractValue || '0'),
+        costsIncurredToDate: parseFloat(project.costsIncurredToDate || '0'),
+        estimatedTotalCosts: parseFloat(project.estimatedTotalCosts || '0'),
+        billingToDate: parseFloat(project.billingToDate || '0'),
+        revenueRecognizedToDate: parseFloat(project.revenueRecognizedToDate || '0'),
+      }));
+
+      const { ifrsEngine } = await import("./ifrs-engine");
+      const wipSchedule = ifrsEngine.generateWIPSchedule(wipData);
+      const complianceReport = ifrsEngine.generateComplianceReport(wipSchedule);
+      
+      res.json({
+        wipSchedule,
+        complianceReport,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate WIP schedule" });
+    }
+  });
+
+  // Multi-Currency endpoints
+  app.get("/api/currency/rates", async (req, res) => {
+    try {
+      const { currencyEngine } = await import("./currency-engine");
+      const rates = currencyEngine.getSupportedCurrencies();
+      res.json(rates);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch currency rates" });
+    }
+  });
+
+  app.post("/api/currency/convert", async (req, res) => {
+    try {
+      const { amount, fromCurrency, toCurrency, precision } = req.body;
+      
+      if (!amount || !fromCurrency || !toCurrency) {
+        return res.status(400).json({ message: "Amount, fromCurrency, and toCurrency are required" });
+      }
+
+      const { currencyEngine } = await import("./currency-engine");
+      const conversion = currencyEngine.convert(
+        parseFloat(amount), 
+        fromCurrency, 
+        toCurrency, 
+        precision || 2
+      );
+      
+      res.json(conversion);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to convert currency" });
+    }
+  });
+
+  app.post("/api/currency/multi-convert", async (req, res) => {
+    try {
+      const { amount, baseCurrency, targetCurrencies } = req.body;
+      
+      if (!amount || !baseCurrency || !Array.isArray(targetCurrencies)) {
+        return res.status(400).json({ message: "Amount, baseCurrency, and targetCurrencies array are required" });
+      }
+
+      const { currencyEngine } = await import("./currency-engine");
+      const conversions = currencyEngine.calculateMultiCurrencyValue(
+        parseFloat(amount), 
+        baseCurrency, 
+        targetCurrencies
+      );
+      
+      res.json(conversions);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to convert to multiple currencies" });
+    }
+  });
+
+  app.get("/api/currency/historical/:from/:to", async (req, res) => {
+    try {
+      const { from, to } = req.params;
+      const days = parseInt(req.query.days as string) || 30;
+      
+      const { currencyEngine } = await import("./currency-engine");
+      const historical = currencyEngine.getHistoricalRates(from, to, days);
+      res.json(historical);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch historical rates" });
+    }
+  });
+
+  app.post("/api/currency/update-rates", async (req, res) => {
+    try {
+      const { currencyEngine } = await import("./currency-engine");
+      const result = await currencyEngine.updateExchangeRates();
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update exchange rates" });
+    }
+  });
+
+  // Global Market Intelligence endpoint
+  app.post("/api/intelligence/global-cost-estimation", async (req, res) => {
+    try {
+      const { projectType, area, region, country, complexity, targetCurrency } = req.body;
+      
+      if (!projectType || !area || !region || !country) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Get base estimate in YER
+      const estimate = businessIntelligence.calculateProjectCost(
+        projectType,
+        parseFloat(area),
+        country,
+        complexity || 'medium',
+        []
+      );
+      
+      // Convert to target currency if specified
+      let convertedEstimate = estimate;
+      if (targetCurrency && targetCurrency !== 'YER') {
+        const { currencyEngine } = await import("./currency-engine");
+        const conversion = currencyEngine.convert(
+          estimate.totalCost,
+          'YER',
+          targetCurrency
+        );
+        
+        convertedEstimate = {
+          ...estimate,
+          totalCost: conversion.convertedAmount,
+          currency: targetCurrency,
+          exchangeRate: conversion.exchangeRate,
+          volatilityRisk: conversion.volatilityRisk,
+        };
+      }
+      
+      res.json(convertedEstimate);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate global cost estimate" });
+    }
+  });
+
+  // Enhanced project analytics endpoint
+  app.get("/api/analytics/project/:id", async (req, res) => {
+    try {
+      const projectId = parseInt(req.params.id);
+      const project = await storage.getProject(projectId);
+      
+      if (!project) {
+        return res.status(404).json({ message: "Project not found" });
+      }
+
+      const transactions = await storage.getTransactionsByProject(projectId);
+      
+      // Basic project insights
+      const insights = businessIntelligence.analyzeProject(project, transactions);
+      
+      // IFRS revenue recognition
+      const { ifrsEngine } = await import("./ifrs-engine");
+      const revenueRecognition = ifrsEngine.calculateRevenueRecognition({
+        contractValue: parseFloat(project.contractValue || '0'),
+        costsIncurredToDate: parseFloat(project.costsIncurredToDate || '0'),
+        estimatedTotalCosts: parseFloat(project.estimatedTotalCosts || '0'),
+        revenueRecognizedToDate: parseFloat(project.revenueRecognizedToDate || '0'),
+      });
+      
+      // Multi-currency analysis if project currency is not YER
+      let currencyAnalysis = null;
+      if (project.contractCurrency && project.contractCurrency !== 'YER') {
+        const { currencyEngine } = await import("./currency-engine");
+        const contractValueInYER = currencyEngine.convert(
+          parseFloat(project.contractValue || '0'),
+          project.contractCurrency,
+          'YER'
+        );
+        
+        currencyAnalysis = {
+          originalCurrency: project.contractCurrency,
+          contractValue: parseFloat(project.contractValue || '0'),
+          contractValueInYER: contractValueInYER.convertedAmount,
+          exchangeRate: contractValueInYER.exchangeRate,
+          volatilityRisk: contractValueInYER.volatilityRisk,
+        };
+      }
+      
+      res.json({
+        project: insights,
+        ifrs: revenueRecognition,
+        currency: currencyAnalysis,
+        globalFactors: {
+          region: project.region || 'MENA',
+          countryCode: project.countryCode || 'YE',
+          complexity: project.complexity || 'medium',
+          projectType: project.projectType || 'residential',
+        },
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate project analytics" });
+    }
+  });
+
   // Register file management routes
   registerFileRoutes(app);
 

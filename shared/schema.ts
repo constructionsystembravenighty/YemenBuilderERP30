@@ -48,6 +48,26 @@ export const projects = pgTable("projects", {
   locationAr: text("location_ar"),
   status: text("status").notNull().default("planning"), // planning, active, completed, cancelled, on_hold
   priority: text("priority").notNull().default("medium"), // low, medium, high, critical
+  
+  // IFRS 15 & Global Enhancement Fields
+  contractValue: decimal("contract_value", { precision: 15, scale: 2 }).notNull().default('0'),
+  contractCurrency: text("contract_currency").notNull().default("YER"), // YER, USD, EUR, GBP, SAR, AED
+  estimatedTotalCosts: decimal("estimated_total_costs", { precision: 15, scale: 2 }).notNull().default('0'),
+  costsIncurredToDate: decimal("costs_incurred_to_date", { precision: 15, scale: 2 }).notNull().default('0'),
+  revenueRecognizedToDate: decimal("revenue_recognized_to_date", { precision: 15, scale: 2 }).notNull().default('0'),
+  billingToDate: decimal("billing_to_date", { precision: 15, scale: 2 }).notNull().default('0'),
+  
+  // Global Expansion Fields
+  region: text("region").default("MENA"), // MENA, APAC, EMEA, AMERICAS
+  countryCode: text("country_code").default("YE"), // ISO country codes
+  timeZone: text("time_zone").default("Asia/Aden"),
+  localRegulations: jsonb("local_regulations").default('{}'), // Local building codes, standards
+  
+  // Advanced Project Fields
+  projectType: text("project_type").default("residential"), // residential, commercial, infrastructure, industrial
+  complexity: text("complexity").default("medium"), // simple, medium, complex, luxury
+  sustainabilityRating: text("sustainability_rating"), // LEED, BREEAM, Green Star
+  climateZone: text("climate_zone").default("arid"), // tropical, arid, temperate, cold
   budget: decimal("budget", { precision: 15, scale: 2 }),
   spent: decimal("spent", { precision: 15, scale: 2 }).default("0"),
   progress: integer("progress").default(0), // percentage 0-100

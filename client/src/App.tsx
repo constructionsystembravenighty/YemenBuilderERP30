@@ -26,6 +26,7 @@ import FormsDemo from "@/pages/forms-demo";
 import Analytics from "@/pages/analytics";
 import Workflows from "@/pages/workflows";
 import Audit from "@/pages/audit";
+import { GlobalExpansionDemo } from "@/components/global-expansion-demo";
 import Layout from "@/components/layout/layout";
 import { RouteHandler } from "@/components/navigation/route-handler";
 import MobileNavigation from "@/components/mobile/mobile-navigation";
@@ -99,6 +100,7 @@ function Router() {
         <Route path="/analytics" component={Analytics} />
         <Route path="/workflows" component={Workflows} />
         <Route path="/audit" component={Audit} />
+        <Route path="/global-expansion" component={GlobalExpansionDemo} />
         <Route component={NotFound} />
       </Switch>
     </RouteHandler>
