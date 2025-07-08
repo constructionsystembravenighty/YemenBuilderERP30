@@ -113,6 +113,13 @@ const navigationItems: NavItem[] = [
     label: "التوسع العالمي",
     description: "مشاريع عالمية مع IFRS 15 والعملات المتعددة",
     badge: "جديد"
+  },
+  { 
+    path: "/advanced-features", 
+    icon: Cog, 
+    label: "الميزات المتقدمة",
+    description: "أدوات متطورة لإدارة المشاريع والامتثال",
+    badge: "حديث"
   }
 ];
 
